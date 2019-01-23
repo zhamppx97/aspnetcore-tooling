@@ -114,7 +114,10 @@ namespace Microsoft.AspNetCore.Razor.Language
                 parentIsTagHelper: false);
 
             // Assert
-            Assert.Equal((IEnumerable<TagHelperDescriptor>)expectedDescriptors, bindingResult.Descriptors, TagHelperDescriptorComparer.CaseSensitive);
+            Assert.Equal(
+                ((IEnumerable<TagHelperDescriptor>)expectedDescriptors)?.OrderBy(d => d.Name),
+                bindingResult?.Descriptors?.OrderBy(d => d.Name),
+                TagHelperDescriptorComparer.CaseSensitive);
         }
 
         public static TheoryData RequiredAttributeData
@@ -277,7 +280,10 @@ namespace Microsoft.AspNetCore.Razor.Language
             var bindingResult = tagHelperBinder.GetBinding(tagName, providedAttributes, parentTagName: "p", parentIsTagHelper: false);
 
             // Assert
-            Assert.Equal((IEnumerable<TagHelperDescriptor>)expectedDescriptors, bindingResult?.Descriptors, TagHelperDescriptorComparer.CaseSensitive);
+            Assert.Equal(
+                ((IEnumerable<TagHelperDescriptor>)expectedDescriptors)?.OrderBy(d => d.Name), 
+                bindingResult?.Descriptors?.OrderBy(d => d.Name), 
+                TagHelperDescriptorComparer.CaseSensitive);
         }
 
         [Fact]
@@ -293,6 +299,27 @@ namespace Microsoft.AspNetCore.Razor.Language
             // Act
             var bindingResult = tagHelperBinder.GetBinding(
                 tagName: "th",
+                attributes: Array.Empty<KeyValuePair<string, string>>(),
+                parentTagName: "p",
+                parentIsTagHelper: false);
+
+            // Assert
+            Assert.Null(bindingResult);
+        }
+
+        [Fact] // Tests the case where the prefix is too long to match
+        public void GetBinding_LongPrefix()
+        {
+            // Arrange
+            var catchAllDescriptor = TagHelperDescriptorBuilder.Create("foo1", "SomeAssembly")
+                .TagMatchingRuleDescriptor(rule => rule.RequireTagName("div"))
+                .Build();
+            var descriptors = new[] { catchAllDescriptor };
+            var tagHelperBinder = new TagHelperBinder("th", descriptors);
+
+            // Act
+            var bindingResult = tagHelperBinder.GetBinding(
+                tagName: "some-prefix:div",
                 attributes: Array.Empty<KeyValuePair<string, string>>(),
                 parentTagName: "p",
                 parentIsTagHelper: false);
@@ -350,6 +377,97 @@ namespace Microsoft.AspNetCore.Razor.Language
             // Assert
             var descriptor = Assert.Single(bindingResult.Descriptors);
             Assert.Same(divDescriptor, descriptor);
+        }
+
+        [Fact]
+        public void GetBinding_IgnoreTagHelperPrefix_Wildcard()
+        {
+            // Arrange
+            var catchAllDescriptor = TagHelperDescriptorBuilder.Create("foo1", "SomeAssembly")
+                .TagMatchingRuleDescriptor(rule => rule.RequireTagName(TagHelperMatchingConventions.ElementCatchAllName))
+                .AddMetadata(TagHelperMetadata.Common.IgnoreTagHelperPrefix, bool.TrueString)
+                .Build();
+            var descriptors = new[] { catchAllDescriptor };
+            var tagHelperBinder = new TagHelperBinder("th:", descriptors);
+
+            // Act
+            var bindingResultDiv = tagHelperBinder.GetBinding(
+                tagName: "div",
+                attributes: Array.Empty<KeyValuePair<string, string>>(),
+                parentTagName: "p",
+                parentIsTagHelper: false);
+
+            // Assert
+            var descriptor = Assert.Single(bindingResultDiv.Descriptors);
+            Assert.Same(catchAllDescriptor, descriptor);
+        }
+
+        [Fact]
+        public void GetBinding_IgnoreTagHelperPrefix_Wildcard_MatchWithPrefix()
+        {
+            // Arrange
+            var catchAllDescriptor = TagHelperDescriptorBuilder.Create("foo1", "SomeAssembly")
+                .TagMatchingRuleDescriptor(rule => rule.RequireTagName(TagHelperMatchingConventions.ElementCatchAllName))
+                .AddMetadata(TagHelperMetadata.Common.IgnoreTagHelperPrefix, bool.TrueString)
+                .Build();
+            var descriptors = new[] { catchAllDescriptor };
+            var tagHelperBinder = new TagHelperBinder("th:", descriptors);
+
+            // Act
+            var bindingResultDiv = tagHelperBinder.GetBinding(
+                tagName: "th:div",
+                attributes: Array.Empty<KeyValuePair<string, string>>(),
+                parentTagName: "p",
+                parentIsTagHelper: false);
+
+            // Assert
+            var descriptor = Assert.Single(bindingResultDiv.Descriptors);
+            Assert.Same(catchAllDescriptor, descriptor);
+        }
+
+        [Fact]
+        public void GetBinding_IgnoreTagHelperPrefix_ElementNameMatch()
+        {
+            // Arrange
+            var catchAllDescriptor = TagHelperDescriptorBuilder.Create("foo1", "SomeAssembly")
+                .TagMatchingRuleDescriptor(rule => rule.RequireTagName("div"))
+                .AddMetadata(TagHelperMetadata.Common.IgnoreTagHelperPrefix, bool.TrueString)
+                .Build();
+            var descriptors = new[] { catchAllDescriptor };
+            var tagHelperBinder = new TagHelperBinder("th:", descriptors);
+
+            // Act
+            var bindingResultDiv = tagHelperBinder.GetBinding(
+                tagName: "div",
+                attributes: Array.Empty<KeyValuePair<string, string>>(),
+                parentTagName: "p",
+                parentIsTagHelper: false);
+
+            // Assert
+            var descriptor = Assert.Single(bindingResultDiv.Descriptors);
+            Assert.Same(catchAllDescriptor, descriptor);
+        }
+
+        [Fact]
+        public void GetBinding_IgnoreTagHelperPrefix_ElementNameMatch_NoMatch()
+        {
+            // Arrange
+            var catchAllDescriptor = TagHelperDescriptorBuilder.Create("foo1", "SomeAssembly")
+                .TagMatchingRuleDescriptor(rule => rule.RequireTagName("div"))
+                .AddMetadata(TagHelperMetadata.Common.IgnoreTagHelperPrefix, bool.TrueString)
+                .Build();
+            var descriptors = new[] { catchAllDescriptor };
+            var tagHelperBinder = new TagHelperBinder("th:", descriptors);
+
+            // Act
+            var bindingResultDiv = tagHelperBinder.GetBinding(
+                tagName: "th:div",
+                attributes: Array.Empty<KeyValuePair<string, string>>(),
+                parentTagName: "p",
+                parentIsTagHelper: false);
+
+            // Assert
+            Assert.Null(bindingResultDiv);
         }
 
         [Theory]

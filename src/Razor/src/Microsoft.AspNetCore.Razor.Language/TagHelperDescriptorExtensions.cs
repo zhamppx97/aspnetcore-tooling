@@ -38,5 +38,16 @@ namespace Microsoft.AspNetCore.Razor.Language
             tagHelper.Metadata.TryGetValue(TagHelperMetadata.Runtime.Name, out var value);
             return string.Equals(TagHelperConventions.DefaultKind, value, StringComparison.Ordinal);
         }
+
+        public static bool IgnoresTagHelperPrefix(this TagHelperDescriptor tagHelper)
+        {
+            if (tagHelper == null)
+            {
+                throw new ArgumentNullException(nameof(tagHelper));
+            }
+
+            tagHelper.Metadata.TryGetValue(TagHelperMetadata.Common.IgnoreTagHelperPrefix, out var value);
+            return string.Equals(bool.TrueString, value, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

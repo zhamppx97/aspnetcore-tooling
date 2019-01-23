@@ -2346,6 +2346,34 @@ namespace Test
             CompileToAssembly(generated);
         }
 
+        [Fact]
+        public void TagHelperPrefix_IsIgnored()
+        {
+            // Arrange
+            AdditionalSyntaxTrees.Add(Parse(@"
+using Microsoft.AspNetCore.Components;
+
+namespace Test
+{
+    public class Counter : ComponentBase
+    {
+    }
+}
+"));
+
+            // Act
+            var generated = CompileToCSharp(@"
+@tagHelperPrefix some-prefix: 
+@addTagHelper *, TestAssembly
+<Counter />
+");
+
+            // Assert
+            AssertDocumentNodeMatchesBaseline(generated.CodeDocument);
+            AssertCSharpDocumentMatchesBaseline(generated.CodeDocument);
+            CompileToAssembly(generated);
+        }
+
         [Fact] // https://github.com/aspnet/Blazor/issues/597
         public void Regression_597()
         {

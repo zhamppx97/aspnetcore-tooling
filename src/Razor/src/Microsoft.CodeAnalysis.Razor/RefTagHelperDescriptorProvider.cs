@@ -45,6 +45,7 @@ namespace Microsoft.CodeAnalysis.Razor
 
             builder.Metadata.Add(BlazorMetadata.SpecialKindKey, BlazorMetadata.Ref.TagHelperKind);
             builder.Metadata.Add(TagHelperMetadata.Common.ClassifyAttributesOnly, bool.TrueString);
+            builder.Metadata[TagHelperMetadata.Common.IgnoreTagHelperPrefix] = bool.TrueString;
             builder.Metadata[TagHelperMetadata.Runtime.Name] = BlazorMetadata.Ref.RuntimeName;
 
             // WTE has a bug in 15.7p1 where a Tag Helper without a display-name that looks like

@@ -1,0 +1,29 @@
+Document - 
+    NamespaceDeclaration -  - Test
+        UsingDirective - (3:1,1 [12] ) - System
+        UsingDirective - (18:2,1 [32] ) - System.Collections.Generic
+        UsingDirective - (53:3,1 [17] ) - System.Linq
+        UsingDirective - (73:4,1 [28] ) - System.Threading.Tasks
+        UsingDirective - (104:5,1 [37] ) - Microsoft.AspNetCore.Components
+        ClassDeclaration -  - public - TestComponent - Microsoft.AspNetCore.Components.ComponentBase - 
+            DesignTimeDirective - 
+                DirectiveToken - (14:0,14 [36] ) - "*, Microsoft.AspNetCore.Components"
+                DirectiveToken - (14:0,14 [9] ) - "*, Test"
+                DirectiveToken - (17:0,17 [13] x:\dir\subdir\Test\TestComponent.cshtml) - some-prefix:
+                DirectiveToken - (46:1,14 [15] x:\dir\subdir\Test\TestComponent.cshtml) - *, TestAssembly
+            CSharpCode - 
+                IntermediateToken -  - CSharp - #pragma warning disable 0414
+            CSharpCode - 
+                IntermediateToken -  - CSharp - private static System.Object __o = null;
+            CSharpCode - 
+                IntermediateToken -  - CSharp - #pragma warning restore 0414
+            MethodDeclaration -  - protected override - void - BuildRenderTree
+                CSharpCode - 
+                    IntermediateToken -  - CSharp - base.BuildRenderTree(builder);
+                HtmlContent - (30:0,30 [2] x:\dir\subdir\Test\TestComponent.cshtml)
+                    IntermediateToken - (30:0,30 [2] x:\dir\subdir\Test\TestComponent.cshtml) - Html - \n
+                HtmlContent - (61:1,29 [2] x:\dir\subdir\Test\TestComponent.cshtml)
+                    IntermediateToken - (61:1,29 [2] x:\dir\subdir\Test\TestComponent.cshtml) - Html - \n
+                Component - (63:2,0 [11] x:\dir\subdir\Test\TestComponent.cshtml) - Counter
+                HtmlContent - (74:2,11 [2] x:\dir\subdir\Test\TestComponent.cshtml)
+                    IntermediateToken - (74:2,11 [2] x:\dir\subdir\Test\TestComponent.cshtml) - Html - \n

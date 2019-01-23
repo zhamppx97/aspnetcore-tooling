@@ -12,6 +12,8 @@ namespace Microsoft.AspNetCore.Razor.Language
             public static readonly string TypeName = "Common.TypeName";
 
             public static readonly string ClassifyAttributesOnly = "Common.ClassifyAttributesOnly";
+
+            public static readonly string IgnoreTagHelperPrefix = "Common.SupportsTagHelperPrefix";
         }
 
         public static class Runtime

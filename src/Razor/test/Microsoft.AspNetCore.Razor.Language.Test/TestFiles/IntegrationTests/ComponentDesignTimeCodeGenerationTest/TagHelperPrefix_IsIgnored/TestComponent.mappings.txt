@@ -1,0 +1,10 @@
+Source Location: (17:0,17 [13] x:\dir\subdir\Test\TestComponent.cshtml)
+|some-prefix: |
+Generated Location: (554:16,38 [13] )
+|some-prefix:"|
+
+Source Location: (46:1,14 [15] x:\dir\subdir\Test\TestComponent.cshtml)
+|*, TestAssembly|
+Generated Location: (750:24,38 [15] )
+|*, TestAssembly|
+

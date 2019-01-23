@@ -89,6 +89,9 @@ namespace Microsoft.CodeAnalysis.Razor
             var builder = TagHelperDescriptorBuilder.Create(BlazorMetadata.Component.TagHelperKind, typeName, assemblyName);
             builder.SetTypeName(typeName);
 
+            // Opt out of tag helper prefix so that it can't mess with our bindings
+            builder.Metadata[TagHelperMetadata.Common.IgnoreTagHelperPrefix] = bool.TrueString;
+
             // This opts out this 'component' tag helper for any processing that's specific to the default
             // Razor ITagHelper runtime.
             builder.Metadata[TagHelperMetadata.Runtime.Name] = BlazorMetadata.Component.RuntimeName;
