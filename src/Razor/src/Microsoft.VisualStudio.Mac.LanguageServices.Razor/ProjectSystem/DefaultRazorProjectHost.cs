@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 using MonoDevelop.Projects;
@@ -21,6 +22,7 @@ namespace Microsoft.VisualStudio.Mac.LanguageServices.Razor.ProjectSystem
         private const string RazorConfigurationItemType = "RazorConfiguration";
         private const string RazorConfigurationItemTypeExtensionsProperty = "Extensions";
         private const string RootNamespaceProperty = "RootNamespace";
+        private const string LangVersionProperty = "LangVersion";
 
         public DefaultRazorProjectHost(
             DotNetProject project,
@@ -42,7 +44,8 @@ namespace Microsoft.VisualStudio.Mac.LanguageServices.Razor.ProjectSystem
                 if (TryGetConfiguration(projectProperties, projectItems, out var configuration))
                 {
                     TryGetRootNamespace(projectProperties, out var rootNamespace);
-                    var hostProject = new HostProject(DotNetProject.FileName.FullPath, configuration, rootNamespace);
+                    var csharpLanguageVersion = GetCSharpLanguageVersion(projectProperties);
+                    var hostProject = new HostProject(DotNetProject.FileName.FullPath, configuration, rootNamespace, csharpLanguageVersion);
                     await UpdateHostProjectUnsafeAsync(hostProject).ConfigureAwait(false);
                 }
                 else
@@ -51,6 +54,17 @@ namespace Microsoft.VisualStudio.Mac.LanguageServices.Razor.ProjectSystem
                     await UpdateHostProjectUnsafeAsync(null).ConfigureAwait(false);
                 }
             });
+        }
+
+        private LanguageVersion GetCSharpLanguageVersion(IMSBuildEvaluatedPropertyCollection projectProperties)
+        {
+            var csharpLanguageVersionRaw = projectProperties.GetValue(LangVersionProperty);
+            if (!LanguageVersionFacts.TryParse(csharpLanguageVersionRaw, out var csharpLanguageVersion))
+            {
+                return LanguageVersion.Default;
+            }
+
+            return csharpLanguageVersion;
         }
 
         // Internal for testing

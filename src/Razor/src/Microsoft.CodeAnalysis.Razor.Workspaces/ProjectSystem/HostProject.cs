@@ -3,12 +3,17 @@
 
 using System;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 {
     internal class HostProject
     {
-        public HostProject(string projectFilePath, RazorConfiguration razorConfiguration, string rootNamespace)
+        public HostProject(
+            string projectFilePath, 
+            RazorConfiguration razorConfiguration, 
+            string rootNamespace,
+            LanguageVersion csharpLanguageVersion)
         {
             if (projectFilePath == null)
             {
@@ -23,6 +28,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
             FilePath = projectFilePath;
             Configuration = razorConfiguration;
             RootNamespace = rootNamespace;
+            CSharpLanguageVersion = csharpLanguageVersion;
         }
 
         public RazorConfiguration Configuration { get; }
@@ -30,5 +36,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
         public string FilePath { get; }
 
         public string RootNamespace { get; }
+
+        public LanguageVersion CSharpLanguageVersion { get; }
     }
 }

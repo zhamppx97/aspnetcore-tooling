@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 
@@ -36,16 +37,26 @@ namespace Microsoft.CodeAnalysis.Remote.Razor
                 throw new ArgumentNullException(nameof(projectHandle));
             }
 
-            return Task.FromResult<ProjectSnapshot>(new SerializedProjectSnapshot(projectHandle.FilePath, projectHandle.Configuration, projectHandle.RootNamespace));
+            return Task.FromResult<ProjectSnapshot>(
+                new SerializedProjectSnapshot(
+                    projectHandle.FilePath, 
+                    projectHandle.Configuration, 
+                    projectHandle.RootNamespace,
+                    projectHandle.CSharpLanguageVersion));
         }
 
         private class SerializedProjectSnapshot : ProjectSnapshot
         {
-            public SerializedProjectSnapshot(string filePath, RazorConfiguration configuration, string rootNamespace)
+            public SerializedProjectSnapshot(
+                string filePath, 
+                RazorConfiguration configuration, 
+                string rootNamespace,
+                LanguageVersion csharpLanguageVersion)
             {
                 FilePath = filePath;
                 Configuration = configuration;
                 RootNamespace = rootNamespace;
+                CSharpLanguageVersion = csharpLanguageVersion;
 
                 Version = VersionStamp.Default;
             }
@@ -57,6 +68,8 @@ namespace Microsoft.CodeAnalysis.Remote.Razor
             public override string FilePath { get; }
 
             public override string RootNamespace { get; }
+
+            public override LanguageVersion CSharpLanguageVersion { get; }
 
             public override VersionStamp Version { get; }
 

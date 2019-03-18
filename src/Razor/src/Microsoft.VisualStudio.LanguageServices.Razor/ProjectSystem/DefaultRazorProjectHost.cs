@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.ProjectSystem;
@@ -31,6 +32,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
     {
         private const string ConfigurationGeneralSchemaName = "ConfigurationGeneral";
         private const string RootNamespaceProperty = "RootNamespace";
+        private const string LangVersionProperty = "LangVersion";
         private IDisposable _subscription;
 
         [ImportingConstructor]
@@ -103,7 +105,8 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
                     if (TryGetConfiguration(update.Value.CurrentState, out var configuration))
                     {
                         TryGetRootNamespace(update.Value.CurrentState, out var rootNamespace);
-                        var hostProject = new HostProject(CommonServices.UnconfiguredProject.FullPath, configuration, rootNamespace);
+                        var csharpLanguageVersion = GetCSharpLanguageVersion(update.Value.CurrentState);
+                        var hostProject = new HostProject(CommonServices.UnconfiguredProject.FullPath, configuration, rootNamespace, csharpLanguageVersion);
 
                         // We need to deal with the case where the project was uninitialized, but now
                         // is valid for Razor. In that case we might have previously seen all of the documents
@@ -137,6 +140,26 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
                     }
                 }).ConfigureAwait(false);
             }, registerFaultHandler: true);
+        }
+
+        private LanguageVersion GetCSharpLanguageVersion(IImmutableDictionary<string, IProjectRuleSnapshot> state)
+        {
+            if (!state.TryGetValue(Rules.RazorGeneral.SchemaName, out var rule))
+            {
+                return LanguageVersion.Default;
+            }
+
+            if (!rule.Properties.TryGetValue(Rules.RazorGeneral.LangVersionProperty, out var languageVersionValue))
+            {
+                return LanguageVersion.Default;
+            }
+
+            if (!LanguageVersionFacts.TryParse(languageVersionValue, out var csharpLanguageVersion))
+            {
+                return LanguageVersion.Default;
+            }
+
+            return csharpLanguageVersion;
         }
 
         // Internal for testing

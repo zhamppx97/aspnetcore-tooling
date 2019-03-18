@@ -32,7 +32,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Razor.Serialization
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var project = (ProjectSnapshot)value;
-            var handle = new ProjectSnapshotHandle(project.FilePath, project.Configuration, project.RootNamespace);
+            var handle = new ProjectSnapshotHandle(project.FilePath, project.Configuration, project.RootNamespace, project.CSharpLanguageVersion);
 
             ProjectSnapshotHandleJsonConverter.Instance.WriteJson(writer, handle, serializer);
         }

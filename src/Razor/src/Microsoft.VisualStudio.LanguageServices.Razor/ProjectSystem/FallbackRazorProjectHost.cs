@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.ProjectSystem;
 using ContentItem = Microsoft.CodeAnalysis.Razor.ProjectSystem.ManagedProjectSystemSchema.ContentItem;
@@ -125,7 +126,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
                     }
 
                     var configuration = FallbackRazorConfiguration.SelectConfiguration(version);
-                    var hostProject = new HostProject(CommonServices.UnconfiguredProject.FullPath, configuration, rootNamespace: null);
+                    var hostProject = new HostProject(CommonServices.UnconfiguredProject.FullPath, configuration, rootNamespace: null, LanguageVersion.Default);
 
                     // We need to deal with the case where the project was uninitialized, but now
                     // is valid for Razor. In that case we might have previously seen all of the documents

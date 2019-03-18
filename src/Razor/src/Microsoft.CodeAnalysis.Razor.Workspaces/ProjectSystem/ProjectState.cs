@@ -400,7 +400,11 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
             return factory.Create(
                 HostProject.Configuration,
                 Path.GetDirectoryName(HostProject.FilePath),
-                configure: c => c.SetRootNamespace(HostProject.RootNamespace));
+                configure: builder =>
+                {
+                    builder.SetRootNamespace(HostProject.RootNamespace);
+                    builder.SetCSharpLanguageVersion(HostProject.CSharpLanguageVersion);
+                });
         }
 
         public List<string> GetImportDocumentTargetPaths(string targetPath)

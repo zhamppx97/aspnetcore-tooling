@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 {
@@ -11,7 +12,8 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
         public ProjectSnapshotHandle(
             string filePath, 
             RazorConfiguration configuration,
-            string rootNamespace)
+            string rootNamespace,
+            LanguageVersion csharpLanguageVersion)
         {
             if (filePath == null)
             {
@@ -21,6 +23,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
             FilePath = filePath;
             Configuration = configuration;
             RootNamespace = rootNamespace;
+            CSharpLanguageVersion = csharpLanguageVersion;
         }
 
         public RazorConfiguration Configuration { get; }
@@ -28,5 +31,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
         public string FilePath { get; }
 
         public string RootNamespace { get; }
+
+        public LanguageVersion CSharpLanguageVersion { get; }
     }
 }

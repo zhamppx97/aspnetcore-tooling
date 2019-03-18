@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Razor.Language;
-using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -30,8 +30,13 @@ namespace Microsoft.VisualStudio.LanguageServices.Razor.Serialization
             var filePath = obj[nameof(ProjectSnapshotHandle.FilePath)].Value<string>();
             var configuration = obj[nameof(ProjectSnapshotHandle.Configuration)].ToObject<RazorConfiguration>(serializer);
             var rootNamespace = obj[nameof(ProjectSnapshotHandle.RootNamespace)].Value<string>();
+            var rawCSharpLanguageVersion = obj[nameof(ProjectSnapshotHandle.CSharpLanguageVersion)].Value<string>();
+            if (!LanguageVersionFacts.TryParse(rawCSharpLanguageVersion, out var csharpLanguageVersion))
+            {
+                throw new InvalidOperationException($"Cannot parse CSharp langauge version '{rawCSharpLanguageVersion}'.");
+            }
 
-            return new ProjectSnapshotHandle(filePath, configuration, rootNamespace);
+            return new ProjectSnapshotHandle(filePath, configuration, rootNamespace, csharpLanguageVersion);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -64,6 +69,9 @@ namespace Microsoft.VisualStudio.LanguageServices.Razor.Serialization
                 writer.WritePropertyName(nameof(ProjectSnapshotHandle.RootNamespace));
                 writer.WriteValue(handle.RootNamespace);
             }
+
+            writer.WritePropertyName(nameof(ProjectSnapshotHandle.CSharpLanguageVersion));
+            writer.WriteValue(handle.CSharpLanguageVersion);
 
             writer.WriteEndObject();
         }

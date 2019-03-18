@@ -8,6 +8,7 @@ using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 using MonoDevelop.Projects;
@@ -52,7 +53,7 @@ namespace Microsoft.VisualStudio.Mac.LanguageServices.Razor.ProjectSystem
                 }
 
                 var configuration = FallbackRazorConfiguration.SelectConfiguration(version);
-                var hostProject = new HostProject(DotNetProject.FileName.FullPath, configuration, rootNamespace: null);
+                var hostProject = new HostProject(DotNetProject.FileName.FullPath, configuration, rootNamespace: null, LanguageVersion.Default);
                 await UpdateHostProjectUnsafeAsync(hostProject).ConfigureAwait(false);
             });
         }

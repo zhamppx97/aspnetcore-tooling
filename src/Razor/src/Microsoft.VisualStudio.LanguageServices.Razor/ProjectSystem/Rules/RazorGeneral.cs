@@ -29,7 +29,10 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem.Rules
         
         /// <summary>Razor Language Version (The "RazorLangVersion" property).</summary>
         internal const string RazorLangVersionProperty = "RazorLangVersion";
-        
+
+        /// <summary>CSharp Language Version (The "LangVersion" property).</summary>
+        internal const string LangVersionProperty = "LangVersion";
+
         /// <summary>Razor Configuration Name (The "RazorDefaultConfiguration" property).</summary>
         internal const string RazorDefaultConfigurationProperty = "RazorDefaultConfiguration";
         
@@ -142,7 +145,32 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem.Rules
                 return property;
             }
         }
-        
+
+        /// <summary>Razor Language Version</summary>
+        internal Microsoft.VisualStudio.ProjectSystem.Properties.IEvaluatedProperty LangVersion
+        {
+            get
+            {
+                Microsoft.VisualStudio.ProjectSystem.Properties.IRule localRule = this.rule;
+                if ((localRule == null))
+                {
+                    localRule = this.GeneratedFallbackRule;
+                }
+                if ((localRule == null))
+                {
+                    return null;
+                }
+                Microsoft.VisualStudio.ProjectSystem.Properties.IEvaluatedProperty property = ((Microsoft.VisualStudio.ProjectSystem.Properties.IEvaluatedProperty)(localRule.GetProperty(LangVersionProperty)));
+                if (((property == null)
+                            && (this.GeneratedFallbackRule != null)))
+                {
+                    localRule = this.GeneratedFallbackRule;
+                    property = ((Microsoft.VisualStudio.ProjectSystem.Properties.IEvaluatedProperty)(localRule.GetProperty(LangVersionProperty)));
+                }
+                return property;
+            }
+        }
+
         /// <summary>Razor Configuration Name</summary>
         internal Microsoft.VisualStudio.ProjectSystem.Properties.IEvaluatedProperty RazorDefaultConfiguration
         {

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 
 namespace Microsoft.VisualStudio.LiveShare.Razor
@@ -13,6 +14,7 @@ namespace Microsoft.VisualStudio.LiveShare.Razor
             Uri filePath,
             RazorConfiguration configuration,
             string rootNamespace,
+            LanguageVersion csharpLanguageVersion,
             ProjectWorkspaceState projectWorkspaceState)
         {
             if (filePath == null)
@@ -28,6 +30,7 @@ namespace Microsoft.VisualStudio.LiveShare.Razor
             FilePath = filePath;
             Configuration = configuration;
             RootNamespace = rootNamespace;
+            CSharpLanguageVersion = csharpLanguageVersion;
             ProjectWorkspaceState = projectWorkspaceState;
         }
 
@@ -37,7 +40,8 @@ namespace Microsoft.VisualStudio.LiveShare.Razor
 
         public string RootNamespace { get; }
 
-        public ProjectWorkspaceState ProjectWorkspaceState { get; }
+        public LanguageVersion CSharpLanguageVersion { get; }
 
+        public ProjectWorkspaceState ProjectWorkspaceState { get; }
     }
 }

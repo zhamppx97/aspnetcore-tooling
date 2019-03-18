@@ -27,6 +27,14 @@
 
   <StringProperty
     Category="General"
+    Description="CSharp Language Version"
+    DisplayName="CSharp Language Version"
+    Name="LangVersion"
+    ReadOnly="True"
+    Visible="True" />
+
+  <StringProperty
+    Category="General"
     Description="Razor Configuration Name"
     DisplayName="Razor Configuration Name"
     Name="RazorDefaultConfiguration"
