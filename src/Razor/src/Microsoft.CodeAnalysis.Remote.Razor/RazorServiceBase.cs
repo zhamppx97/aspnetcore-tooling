@@ -19,12 +19,12 @@ namespace Microsoft.CodeAnalysis.Remote.Razor
         {
             RazorServices = new RazorServices();
 
-            Rpc.JsonSerializer.Converters.RegisterRazorConverters();
+            //Rpc.JsonSerializer.Converters.RegisterRazorConverters();
 
             // Due to this issue - https://github.com/dotnet/roslyn/issues/16900#issuecomment-277378950
             // We need to manually start the RPC connection. Otherwise we'd be opting ourselves into 
             // race condition prone call paths.
-            Rpc.StartListening();
+            StartService();
         }
 
         protected RazorServices RazorServices { get; }
