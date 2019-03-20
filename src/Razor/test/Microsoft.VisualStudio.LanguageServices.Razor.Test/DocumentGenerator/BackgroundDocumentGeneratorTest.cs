@@ -55,7 +55,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 
             var project = projectManager.GetLoadedProject(HostProject1.FilePath);
 
-            var queue = new BackgroundDocumentGenerator(Dispatcher, DynamicFileInfoProvider)
+            var queue = new BackgroundDocumentGenerator(Dispatcher, DynamicFileInfoProvider, null, null)
             {
                 Delay = TimeSpan.FromMilliseconds(1),
                 BlockBackgroundWorkStart = new ManualResetEventSlim(initialState: false),
@@ -94,7 +94,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 
             var project = projectManager.GetLoadedProject(HostProject1.FilePath);
 
-            var queue = new BackgroundDocumentGenerator(Dispatcher, DynamicFileInfoProvider)
+            var queue = new BackgroundDocumentGenerator(Dispatcher, DynamicFileInfoProvider, null, null)
             {
                 Delay = TimeSpan.FromMilliseconds(1),
                 BlockBackgroundWorkStart = new ManualResetEventSlim(initialState: false),

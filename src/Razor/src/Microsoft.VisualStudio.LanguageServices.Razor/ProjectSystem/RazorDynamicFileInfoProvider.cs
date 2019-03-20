@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Internal;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 {
@@ -36,7 +39,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
             _createEmptyEntry = (key) => new Entry(CreateEmptyInfo(key));
         }
 
-        public event EventHandler<string> Updated;
+        public event EventHandler<DynamicFileChangeEventArgs> Updated;
 
         // Called by us to update entries
         public void UpdateFileInfo(ProjectSnapshot projectSnapshot, DocumentSnapshot document)
@@ -62,7 +65,34 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
                     entry.Current = CreateInfo(key, document);
                 }
 
-                Updated?.Invoke(this, document.FilePath);
+                Updated?.Invoke(this, new DynamicFileChangeEventArgs(document.FilePath));
+            }
+        }
+
+        public void UpdateOpenDocument(ProjectSnapshot projectSnapshot, DocumentSnapshot document, SourceTextContainer textContainer)
+        {
+            if (projectSnapshot == null)
+            {
+                throw new ArgumentNullException(nameof(projectSnapshot));
+            }
+
+            if (document == null)
+            {
+                throw new ArgumentNullException(nameof(document));
+            }
+
+            // There's a possible race condition here where we're processing an update
+            // and the project is getting unloaded. So if we don't find an entry we can
+            // just ignore it.
+            var key = new Key(projectSnapshot.FilePath, document.FilePath);
+            if (_entries.TryGetValue(key, out var entry))
+            {
+                lock (entry.Lock)
+                {
+                    entry.Current = CreateInfo(key, document);
+                }
+
+                Updated?.Invoke(this, new DynamicFileChangeEventArgs(document.FilePath, textContainer));
             }
         }
 
@@ -97,7 +127,7 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 
                 if (updated)
                 {
-                    Updated?.Invoke(this, document.FilePath);
+                    Updated?.Invoke(this, new DynamicFileChangeEventArgs(document.FilePath));
                 }
             }
         }

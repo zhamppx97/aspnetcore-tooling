@@ -8,7 +8,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Internal;
+using Microsoft.VisualStudio.Editor.Razor;
+using Microsoft.VisualStudio.Text.Projection;
 
 namespace Microsoft.CodeAnalysis.Razor
 {
@@ -18,13 +21,21 @@ namespace Microsoft.CodeAnalysis.Razor
     {
         private readonly ForegroundDispatcher _foregroundDispatcher;
         private readonly RazorDynamicFileInfoProvider _infoProvider;
+        private readonly RazorEditorFactoryService _editorFactory;
         private ProjectSnapshotManagerBase _projectManager;
 
+        private readonly Dictionary<DocumentKey, SourceTextContainer> _openDocuments;
         private readonly Dictionary<DocumentKey, (ProjectSnapshot project, DocumentSnapshot document)> _work;
         private Timer _timer;
 
+        private readonly IBufferGraphFactoryService _graphFactory;
+
         [ImportingConstructor]
-        public BackgroundDocumentGenerator(ForegroundDispatcher foregroundDispatcher, RazorDynamicFileInfoProvider infoProvider)
+        public BackgroundDocumentGenerator(
+            ForegroundDispatcher foregroundDispatcher, 
+            RazorDynamicFileInfoProvider infoProvider, 
+            IBufferGraphFactoryService graphFactory,
+            RazorEditorFactoryService editorFactory)
         {
             if (foregroundDispatcher == null)
             {
@@ -36,10 +47,23 @@ namespace Microsoft.CodeAnalysis.Razor
                 throw new ArgumentNullException(nameof(infoProvider));
             }
 
+            if (graphFactory == null)
+            {
+                throw new ArgumentNullException(nameof(graphFactory));
+            }
+
+            if (editorFactory == null)
+            {
+                throw new ArgumentNullException(nameof(editorFactory));
+            }
+
             _foregroundDispatcher = foregroundDispatcher;
             _infoProvider = infoProvider;
+            _graphFactory = graphFactory;
+            _editorFactory = editorFactory;
 
             _work = new Dictionary<DocumentKey, (ProjectSnapshot project, DocumentSnapshot document)>();
+            _openDocuments = new Dictionary<DocumentKey, SourceTextContainer>();
         }
 
         public bool HasPendingNotifications
@@ -145,12 +169,6 @@ namespace Microsoft.CodeAnalysis.Razor
 
             lock (_work)
             {
-                if (_projectManager.IsDocumentOpen(document.FilePath))
-                {
-                    _infoProvider.SuppressDocument(project, document);
-                    return;
-                }
-
                 // We only want to store the last 'seen' version of any given document. That way when we pick one to process
                 // it's always the best version to use.
                 _work[new DocumentKey(project.FilePath, document.FilePath)] = (project, document);
@@ -278,6 +296,32 @@ namespace Microsoft.CodeAnalysis.Razor
                         var project = e.Newer;
                         var document = project.GetDocument(e.DocumentFilePath);
 
+                        var key = new DocumentKey(project.FilePath, document.FilePath);
+
+                        if (_projectManager.IsDocumentOpen(e.DocumentFilePath) && _openDocuments.TryGetValue(key, out var textContainer))
+                        {
+                            // Document is already tracked as open. For open documents, we want to update immediately.
+                            _infoProvider.UpdateOpenDocument(project, document, textContainer);
+                            break;
+                        }
+                        else if (_projectManager.IsDocumentOpen(e.DocumentFilePath) && TryGetCSharpBuffer(document, out textContainer))
+                        {
+                            // The document is open now. Clear any background tasks that were updating it.
+                            lock (_work)
+                            {
+                                _work.Remove(key);
+                            }
+
+                            _openDocuments.Add(key, textContainer);
+                            _infoProvider.UpdateOpenDocument(project, document, textContainer);
+                            break;
+                        }
+
+                        // Document is not open anymore so make sure we're not holding onto a text container for it.
+                        //
+                        // We can also end up here if the document is open but we failed to find a text buffer for it.
+                        _openDocuments.Remove(new DocumentKey(project.FilePath, document.FilePath));
+
                         Enqueue(project, document);
                         foreach (var relatedDocument in project.GetRelatedDocuments(document))
                         {
@@ -310,6 +354,45 @@ namespace Microsoft.CodeAnalysis.Razor
                 default:
                     throw new InvalidOperationException($"Unknown ProjectChangeKind {e.Kind}");
             }
+        }
+
+        private bool TryGetCSharpBuffer(DocumentSnapshot document, out SourceTextContainer textContainer)
+        {
+            // This can fail sometimes, like when the C# projection is disconnected from the editor.
+            if (!document.TryGetText(out var text))
+            {
+                textContainer = null;
+                return false;
+            }
+
+            if (text.Container == null)
+            {
+                textContainer = null;
+                return false;
+            }
+
+            var subjectBuffer = text.Container.GetTextBuffer();
+            if (subjectBuffer == null)
+            {
+                textContainer = null;
+                return false;
+            }
+
+            if (!_editorFactory.TryGetDocumentTracker(subjectBuffer, out var tracker))
+            {
+                textContainer = null;
+                return false;
+            }
+            
+            if (tracker.TextViews.Count == 0)
+            {
+                textContainer = null;
+                return false;
+            }
+
+            var textBuffer = tracker.TextViews[0].BufferGraph.GetTextBuffers(b => b.ContentType.IsOfType("CSharp")).FirstOrDefault();
+            textContainer = textBuffer.AsTextContainer();
+            return textContainer != null;
         }
     }
 }
