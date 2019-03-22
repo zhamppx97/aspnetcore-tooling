@@ -26,12 +26,6 @@ namespace Microsoft.CodeAnalysis.Razor
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (builder.Configuration.LanguageVersion.Major < 3)
-            {
-                // Prior to 3.0 there were no C# version specific controlled features so there's no value in setting a CSharp language version, noop.
-                return builder;
-            }
-
             var existingFeature = builder.Features.OfType<ConfigureParserForCSharpVersionFeature>().FirstOrDefault();
             if (existingFeature != null)
             {
@@ -63,8 +57,16 @@ namespace Microsoft.CodeAnalysis.Razor
                     throw new ArgumentNullException(nameof(options));
                 }
 
+                if (options.Configuration.LanguageVersion.Major < 3)
+                {
+                    // Prior to 3.0 there were no C# version specific controlled features. Suppress nullability enforcement.
+                    options.SuppressNullabilityEnforcement = true;
+                    return;
+                }
+
                 if (CSharpLanguageVersion < LanguageVersion.CSharp8)
                 {
+                    // Having nullable flags < C# 8.0 would cause compile errors.
                     options.SuppressNullabilityEnforcement = true;
                 }
                 else

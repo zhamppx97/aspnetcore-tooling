@@ -31,11 +31,14 @@ Copyright (c) .NET Foundation. All rights reserved.
     Replace @(IntermediateAssembly) with @(RazorIntermediateAssembly)
     Replace @(ReferencePathWithRefAssemblies) with @(RazorReferencePath)
     Replace @(_CoreCompileResourceInputs) with @(_RazorCoreCompileResourceInputs)
+    Replace <Csc Condition="'%(_CoreCompileResourceInputs.WithCulture)' != 'true'" with <Csc
+    Remove comment above ^
 
     Set TargetType="$(OutputType)" to TargetType="Library" - Razor is always a .dll
-
+    
     Remove Returns="@(CscCommandLineArgs)"
-
+    Remove <Import Project="Microsoft.Managed.Core.targets"/>
+    Remove Returns="@(CscCommandLineArgs)"
     Remove @(EmbeddedFiles)
     Remove $(ApplicationIcon) $(Win32Resource) $(Win32Manifest)
     Remove @(EmbeddedDocumentation) and @(EmbeddedFiles)
@@ -50,6 +53,7 @@ Copyright (c) .NET Foundation. All rights reserved.
     Remove Win32Icon="$(ApplicationIcon)"
     Remove Win32Manifest="$(Win32Manifest)"
     Remove Win32Resource="$(Win32Resource)"
+    Remove DocumentationFile="@(DocFileItem)"
 
     Remove EmbedAllSources="$(EmbedAllSources)" - not supported by our supported version of MSBuild
 
@@ -59,8 +63,6 @@ Copyright (c) .NET Foundation. All rights reserved.
     
     Add Condition="'@(RazorCompile)'!=''" as a condition to the RazorCoreCompile target.
   -->
-  <Import Project="Microsoft.Managed.Core.targets"/>
-
   <Target Name="RazorCoreCompile"
           Inputs="$(MSBuildAllProjects);
                   @(RazorCompile);
@@ -74,7 +76,6 @@ Copyright (c) .NET Foundation. All rights reserved.
           Outputs="@(RazorIntermediateAssembly);
                    @(_RazorDebugSymbolsIntermediatePath);
                    $(NonExistentFile)"
-          Returns="@(CscCommandLineArgs)"
           Condition="'@(RazorCompile)'!=''">
     <!-- These two compiler warnings are raised when a reference is bound to a different version
              than specified in the assembly reference version number.  MSBuild raises the same warning in this case,
@@ -116,8 +117,7 @@ Copyright (c) .NET Foundation. All rights reserved.
          ('$(TargetFrameworkIdentifier)' == '.NETStandard' AND '$(TargetFrameworkVersion)' == 'v2.1'))">preview</LangVersion>
     </PropertyGroup>
 
-    <!-- Condition is to filter out the _CoreCompileResourceInputs so that it doesn't pass in culture resources to the compiler -->
-    <Csc Condition="'%(_CoreCompileResourceInputs.WithCulture)' != 'true'"
+    <Csc
          AdditionalLibPaths="$(AdditionalLibPaths)"
          AddModules="@(AddModules)"
          AdditionalFiles="@(AdditionalFiles)"
@@ -134,7 +134,6 @@ Copyright (c) .NET Foundation. All rights reserved.
          DelaySign="$(DelaySign)"
          DisabledWarnings="$(NoWarn)"
          DisableSdkPath="$(DisableSdkPath)"
-         DocumentationFile="@(DocFileItem)"
          EmitDebugInformation="$(DebugSymbols)"
          EnvironmentVariables="$(CscEnvironment)"
          ErrorEndLocation="$(ErrorEndLocation)"
