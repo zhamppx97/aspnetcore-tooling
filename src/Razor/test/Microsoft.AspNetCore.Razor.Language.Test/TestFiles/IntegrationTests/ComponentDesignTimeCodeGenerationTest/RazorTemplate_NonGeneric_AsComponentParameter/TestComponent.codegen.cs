@@ -37,7 +37,8 @@ namespace Test
 #line default
 #line hidden
 #nullable disable
-            __o = #nullable restore
+            __o = 
+#nullable restore
 #line 2 "x:\dir\subdir\Test\TestComponent.cshtml"
                       template
 

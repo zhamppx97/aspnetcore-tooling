@@ -33,7 +33,8 @@ namespace Microsoft.AspNetCore.Razor.Language.IntegrationTests.TestFiles
                 WriteLiteral("!");
                 PopWriter();
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 12 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Templates.cshtml"
                                                                ;
     
@@ -72,7 +73,8 @@ WriteAttributeValue("", 419, item, 419, 5, false);
                 WriteLiteral(">Hello</p>");
                 PopWriter();
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 17 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Templates.cshtml"
                                                            ;
     

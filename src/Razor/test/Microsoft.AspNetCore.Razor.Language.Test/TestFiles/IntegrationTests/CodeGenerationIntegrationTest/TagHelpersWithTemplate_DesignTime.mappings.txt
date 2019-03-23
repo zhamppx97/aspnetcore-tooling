@@ -22,7 +22,7 @@ Generated Location: (1511:42,40 [4] )
 Source Location: (482:15,95 [8] TestFiles/IntegrationTests/CodeGenerationIntegrationTest/TagHelpersWithTemplate.cshtml)
 |);
     |
-Generated Location: (1963:52,95 [8] )
+Generated Location: (1965:53,95 [8] )
 |);
     |
 
@@ -35,7 +35,7 @@ Source Location: (47:2,12 [268] TestFiles/IntegrationTests/CodeGenerationIntegra
         helperResult.WriteTo(Output, HtmlEncoder);
     }
 |
-Generated Location: (2272:63,12 [268] )
+Generated Location: (2274:64,12 [268] )
 |
     public void RenderTemplate(string title, Func<string, HelperResult> template)
     {

@@ -25,7 +25,8 @@ namespace Microsoft.AspNetCore.Razor.Language.IntegrationTests.TestFiles
                 WriteLiteral("<p>Bar</p>");
                 PopWriter();
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 3 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Instrumented.cshtml"
                          ;
 

@@ -22,7 +22,8 @@ namespace Test
         {
             base.BuildRenderTree(builder);
             __o = "";
-            __o = #nullable restore
+            __o = 
+#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                                                        43.ToString()
 

@@ -21,7 +21,8 @@ namespace Test
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_0(builder, -1, -1, #nullable restore
+            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_0(builder, -1, -1, 
+#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                      "hi"
 
@@ -36,7 +37,8 @@ __o = typeof(MyComponent<>);
 #line default
 #line hidden
 #nullable disable
-            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_1(builder, -1, -1, #nullable restore
+            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_1(builder, -1, -1, 
+#nullable restore
 #line 2 "x:\dir\subdir\Test\TestComponent.cshtml"
                      "how are you?"
 
@@ -51,7 +53,8 @@ __o = typeof(MyComponent<>);
 #line default
 #line hidden
 #nullable disable
-            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_2(builder, -1, -1, #nullable restore
+            __Blazor.Test.TestComponent.TypeInference.CreateMyComponent_2(builder, -1, -1, 
+#nullable restore
 #line 3 "x:\dir\subdir\Test\TestComponent.cshtml"
                      "bye!"
 

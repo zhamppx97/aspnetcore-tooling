@@ -48,7 +48,8 @@ global::System.Object __typeHelper = "*, TestAssembly";
                 __InputTagHelper = CreateTagHelper<global::InputTagHelper>();
                 __DivTagHelper = CreateTagHelper<global::DivTagHelper>();
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 16 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/TagHelpersWithTemplate.cshtml"
                                                                                                );
     

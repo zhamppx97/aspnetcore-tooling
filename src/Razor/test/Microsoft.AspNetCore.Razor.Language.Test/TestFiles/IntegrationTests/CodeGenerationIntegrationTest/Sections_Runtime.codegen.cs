@@ -63,7 +63,8 @@ WriteAttributeValue(" ", 121, thing, 122, 6, false);
                     WriteLiteral("</span>");
                     PopWriter();
                 }
-                )#nullable restore
+                )
+#nullable restore
 #line 16 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Sections.cshtml"
                                                     ; 
 

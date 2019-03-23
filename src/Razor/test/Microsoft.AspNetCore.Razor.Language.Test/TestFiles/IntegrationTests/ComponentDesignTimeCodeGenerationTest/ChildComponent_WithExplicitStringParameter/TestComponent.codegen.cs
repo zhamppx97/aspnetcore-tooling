@@ -21,7 +21,8 @@ namespace Test
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            __o = Microsoft.AspNetCore.Components.RuntimeHelpers.TypeCheck<System.String>(#nullable restore
+            __o = Microsoft.AspNetCore.Components.RuntimeHelpers.TypeCheck<System.String>(
+#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                                42.ToString()
 

@@ -49,13 +49,11 @@ namespace AspNetCore
             EndContext();
             BeginContext(61, 7, false);
             BeginContext(61, 7, false);
-#nullable restore
 #line 3 "TestFiles/IntegrationTests/InstrumentationPassIntegrationTest/BasicTest.cshtml"
 Write("Hello");
 
 #line default
 #line hidden
-#nullable disable
             EndContext();
             EndContext();
             BeginContext(69, 2, true);
@@ -80,13 +78,11 @@ Write("Hello");
                 __tagHelperExecutionContext.Add(__InputTagHelper);
                 __InputTagHelper.FooProp = (string)__tagHelperAttribute_0.Value;
                 __tagHelperExecutionContext.AddTagHelperAttribute(__tagHelperAttribute_0);
-#nullable restore
 #line 5 "TestFiles/IntegrationTests/InstrumentationPassIntegrationTest/BasicTest.cshtml"
 __InputTagHelper.BarProp = DateTime.Now;
 
 #line default
 #line hidden
-#nullable disable
                 __tagHelperExecutionContext.AddTagHelperAttribute("date", __InputTagHelper.BarProp, global::Microsoft.AspNetCore.Razor.TagHelpers.HtmlAttributeValueStyle.DoubleQuotes);
                 __tagHelperExecutionContext.AddHtmlAttribute(__tagHelperAttribute_1);
                 await __tagHelperRunner.RunAsync(__tagHelperExecutionContext);
@@ -129,7 +125,6 @@ __InputTagHelper.BarProp = DateTime.Now;
             EndContext();
             BeginContext(217, 29, false);
             BeginContext(217, 29, false);
-#nullable restore
 #line 9 "TestFiles/IntegrationTests/InstrumentationPassIntegrationTest/BasicTest.cshtml"
 Write(Foo(item => new global::Microsoft.AspNetCore.Mvc.Razor.HelperResult(async(__razor_template_writer) => {
     PushWriter(__razor_template_writer);
@@ -144,7 +139,6 @@ Write(Foo(item => new global::Microsoft.AspNetCore.Mvc.Razor.HelperResult(async(
 
 #line default
 #line hidden
-#nullable disable
             EndContext();
             EndContext();
         }

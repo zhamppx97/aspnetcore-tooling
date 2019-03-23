@@ -88,7 +88,8 @@ namespace Microsoft.AspNetCore.Razor.Language.IntegrationTests.TestFiles
                     __tagHelperExecutionContext = __tagHelperScopeManager.End();
                     PopWriter();
                 }
-                )#nullable restore
+                )
+#nullable restore
 #line 16 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/TagHelpersWithTemplate.cshtml"
                                                                                                );
     

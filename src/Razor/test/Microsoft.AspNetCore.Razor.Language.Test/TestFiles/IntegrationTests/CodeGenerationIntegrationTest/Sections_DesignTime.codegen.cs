@@ -83,7 +83,8 @@ global::System.Object NestedDelegates = null;
 #line hidden
 #nullable disable
                 }
-                )#nullable restore
+                )
+#nullable restore
 #line 16 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Sections.cshtml"
                                                     ; 
 

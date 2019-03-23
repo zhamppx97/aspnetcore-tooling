@@ -26,7 +26,8 @@ namespace Microsoft.AspNetCore.Razor.Language.IntegrationTests.TestFiles
 #nullable disable
             item => new Template(async(__razor_template_writer) => {
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 3 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Instrumented.cshtml"
                          ;
     

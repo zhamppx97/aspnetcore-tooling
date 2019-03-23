@@ -45,7 +45,7 @@ namespace Microsoft.AspNetCore.Razor.Language.CodeGeneration
             var context = TestCodeRenderingContext.CreateDesignTime();
 
             var originalSpan = new SourceSpan("test.cshtml", 0, 0, 0, 6);
-            var generatedSpan = new SourceSpan(null, 21 + Environment.NewLine.Length, 1, 0, 6);
+            var generatedSpan = new SourceSpan(null, 42 + Environment.NewLine.Length, 3, 0, 6);
             var expectedSourceMapping = new SourceMapping(originalSpan, generatedSpan);
             var node = new UsingDirectiveIntermediateNode()
             {
@@ -61,11 +61,14 @@ namespace Microsoft.AspNetCore.Razor.Language.CodeGeneration
             Assert.Equal(expectedSourceMapping, mapping);
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
 using System;
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -122,11 +125,14 @@ using System;
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
 __o = i++;
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -196,12 +202,15 @@ __o = i++;
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
   __o = iRender Children
 ++;
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -231,11 +240,14 @@ __o = i++;
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
     
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -292,11 +304,14 @@ __o = i++;
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
 if (true) { }
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -326,11 +341,14 @@ if (true) { }
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
     if (true) { }
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -355,11 +373,14 @@ if (true) { }
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
                        __o = false;
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -383,11 +404,14 @@ if (true) { }
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
                              if(@true){ }
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);
@@ -411,17 +435,22 @@ if (true) { }
             // Assert
             var csharp = context.CodeWriter.GenerateCode();
             Assert.Equal(
-@"#line 1 ""test.cshtml""
+@"
+#nullable restore
+#line 1 ""test.cshtml""
                              if(@true){ 
 
 #line default
 #line hidden
+#nullable disable
 Render Children
+#nullable restore
 #line 1 ""test.cshtml""
                                                }
 
 #line default
 #line hidden
+#nullable disable
 ",
                 csharp,
                 ignoreLineEndingDifferences: true);

@@ -32,7 +32,8 @@ namespace Microsoft.AspNetCore.Razor.Language.IntegrationTests.TestFiles
 #line hidden
 #nullable disable
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 12 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Templates.cshtml"
                                                                ;
     
@@ -71,7 +72,8 @@ __o = foo("");
 #line hidden
 #nullable disable
             }
-            )#nullable restore
+            )
+#nullable restore
 #line 17 "TestFiles/IntegrationTests/CodeGenerationIntegrationTest/Templates.cshtml"
                                                            ;
     
