@@ -21,48 +21,57 @@ namespace Test
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
             base.BuildRenderTree(builder);
-            __o = typeof(
+            __o = typeof(#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                     string
 
 #line default
 #line hidden
+#nullable disable
             );
-            __o = typeof(
+            __o = typeof(#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                                   int
 
 #line default
 #line hidden
+#nullable disable
             );
-            __o = Microsoft.AspNetCore.Components.RuntimeHelpers.TypeCheck<string>(
+            __o = Microsoft.AspNetCore.Components.RuntimeHelpers.TypeCheck<string>(#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
                                               "hi"
 
 #line default
 #line hidden
+#nullable disable
             );
             builder.AddAttribute(-1, "ChildContent", (Microsoft.AspNetCore.Components.RenderFragment<string>)((context) => (builder2) => {
+#nullable restore
 #line 2 "x:\dir\subdir\Test\TestComponent.cshtml"
                 __o = context.ToLower();
 
 #line default
 #line hidden
+#nullable disable
             }
             ));
             builder.AddAttribute(-1, "AnotherChildContent", (Microsoft.AspNetCore.Components.RenderFragment<Test.MyComponent<string, int>.Context>)((item) => (builder2) => {
+#nullable restore
 #line 4 "x:\dir\subdir\Test\TestComponent.cshtml"
 __o = System.Math.Max(0, item.Item);
 
 #line default
 #line hidden
+#nullable disable
             }
             ));
+#nullable restore
 #line 1 "x:\dir\subdir\Test\TestComponent.cshtml"
 __o = typeof(MyComponent<,>);
 
 #line default
 #line hidden
+#nullable disable
         }
         #pragma warning restore 1998
     }
