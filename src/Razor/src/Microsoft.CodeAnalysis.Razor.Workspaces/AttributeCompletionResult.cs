@@ -9,6 +9,8 @@ namespace Microsoft.VisualStudio.Editor.Razor
 {
     public abstract class AttributeCompletionResult
     {
+        public static readonly AttributeCompletionResult Empty = Create(new Dictionary<string, HashSet<BoundAttributeDescriptor>>());
+
         private AttributeCompletionResult()
         {
         }

@@ -146,7 +146,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
             }
 
             var location = new SourceSpan(razorSnapshotPoint.Position, 0);
-            var razorCompletionItems = _dependencies.Value.CompletionFactsService.GetCompletionItems(syntaxTree, location);
+            var razorCompletionItems = _dependencies.Value.CompletionFactsService.GetCompletionItems(codeDocument, location);
 
             foreach (var razorCompletionItem in razorCompletionItems)
             {

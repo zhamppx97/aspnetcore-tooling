@@ -17,7 +17,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
 
         public bool ShouldCommitCompletion(IAsyncCompletionSession session, SnapshotPoint location, char typedChar, CancellationToken token)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }
@@ -27,9 +27,11 @@ namespace Microsoft.VisualStudio.Editor.Razor
                 return false;
             }
 
-            if (typedChar == ':' && completionItemKinds.Contains(RazorCompletionItemKind.DirectiveParameter))
+            if (typedChar == ':' && completionItemKinds.Contains(RazorCompletionItemKind.TagHelperAttributeParameter))
             {
-                // We're already showing completions for directive parameters, meaning there's already a : in existence. Don't allow the commit.
+                // We are already showing completions for directive parameters, meaning there's already a : in existence. i.e.
+                //
+                // <InputText @bind:form|
                 return false;
             }
 

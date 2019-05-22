@@ -8,6 +8,6 @@ namespace Microsoft.CodeAnalysis.Razor
 {
     internal abstract class RazorCompletionFactsService
     {
-        public abstract IReadOnlyList<RazorCompletionItem> GetCompletionItems(RazorSyntaxTree syntaxTree, SourceSpan location);
+        public abstract IReadOnlyList<RazorCompletionItem> GetCompletionItems(RazorCodeDocument codeDocument, SourceSpan location);
     }
 }

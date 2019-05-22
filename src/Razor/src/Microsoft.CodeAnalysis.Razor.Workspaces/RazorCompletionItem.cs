@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.AspNetCore.Razor.Language;
 
 namespace Microsoft.CodeAnalysis.Razor
 {
     internal sealed class RazorCompletionItem
     {
+        private ItemCollection _items;
+
         public RazorCompletionItem(
             string displayText, 
             string insertText, 
@@ -41,5 +44,24 @@ namespace Microsoft.CodeAnalysis.Razor
         public string Description { get; }
 
         public RazorCompletionItemKind Kind { get; }
+
+        public ItemCollection Items
+        {
+            get
+            {
+                if (_items == null)
+                {
+                    lock (this)
+                    {
+                        if (_items == null)
+                        {
+                            _items = new ItemCollection();
+                        }
+                    }
+                }
+
+                return _items;
+            }
+        }
     }
 }

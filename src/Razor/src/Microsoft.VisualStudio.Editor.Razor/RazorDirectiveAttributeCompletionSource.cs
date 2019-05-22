@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
@@ -15,11 +17,31 @@ using Microsoft.VisualStudio.Language.Intellisense.AsyncCompletion;
 using Microsoft.VisualStudio.Language.Intellisense.AsyncCompletion.Data;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
+using Microsoft.VisualStudio.Text.Classification;
 
 namespace Microsoft.VisualStudio.Editor.Razor
 {
     internal class RazorDirectiveAttributeCompletionSource : IAsyncCompletionSource
     {
+        private static readonly IReadOnlyDictionary<string, string> PrimitiveDisplayTypeNameLookups = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            [typeof(byte).FullName] = "byte",
+            [typeof(sbyte).FullName] = "sbyte",
+            [typeof(int).FullName] = "int",
+            [typeof(uint).FullName] = "uint",
+            [typeof(short).FullName] = "short",
+            [typeof(ushort).FullName] = "ushort",
+            [typeof(long).FullName] = "long",
+            [typeof(ulong).FullName] = "ulong",
+            [typeof(float).FullName] = "float",
+            [typeof(double).FullName] = "double",
+            [typeof(char).FullName] = "char",
+            [typeof(bool).FullName] = "bool",
+            [typeof(object).FullName] = "object",
+            [typeof(string).FullName] = "string",
+            [typeof(decimal).FullName] = "decimal",
+        };
+
         // Internal for testing
         internal static readonly object DescriptionKey = new object();
         // Hardcoding the Guid here to avoid a reference to Microsoft.VisualStudio.ImageCatalog.dll
@@ -71,7 +93,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
 
             try
             {
-                var syntaxTree = await _parser.GetLatestSyntaxTreeAsync(triggerLocation.Snapshot, token);
+                var syntaxTree = await _parser.GetLatestCodeDocumentAsync(triggerLocation.Snapshot, token);
                 var location = new SourceSpan(triggerLocation.Position, 0);
                 var razorCompletionItems = _completionFactsService.GetCompletionItems(syntaxTree, location);
 
@@ -104,10 +126,20 @@ namespace Microsoft.VisualStudio.Editor.Razor
                 var completionItemKinds = new HashSet<RazorCompletionItemKind>();
                 foreach (var razorCompletionItem in razorCompletionItems)
                 {
-                    if (razorCompletionItem.Kind != RazorCompletionItemKind.DirectiveAttribute &&
-                        razorCompletionItem.Kind != RazorCompletionItemKind.DirectiveParameter)
+                    if (razorCompletionItem.Kind != RazorCompletionItemKind.TagHelperAttribute &&
+                        razorCompletionItem.Kind != RazorCompletionItemKind.TagHelperAttributeParameter)
                     {
                         // Don't support any other types of completion kinds other than directive attributes.
+                        continue;
+                    }
+
+                    if (razorCompletionItem.Kind == RazorCompletionItemKind.TagHelperAttribute &&
+                        // TODO: Uncomment and remove other restrictions
+                        //razorCompletionItem.InsertText[0] != '@')
+                        !razorCompletionItem.InsertText.Contains("bind") &&
+                        !razorCompletionItem.InsertText.Contains("ref"))
+                    {
+                        // We're only providing TagHelper attributes that are directive attributes. We do this because WTE currently provides all other TagHelper attributes.
                         continue;
                     }
 
@@ -121,7 +153,18 @@ namespace Microsoft.VisualStudio.Editor.Razor
                         suffix: string.Empty,
                         sortText: razorCompletionItem.DisplayText,
                         attributeIcons: ImmutableArray<ImageElement>.Empty);
-                    completionItem.Properties.AddProperty(DescriptionKey, razorCompletionItem.Description);
+                    if (razorCompletionItem.TryGetAssociatedBoundAttributes(out var boundAttributeDescriptors))
+                    {
+                        completionItem.Properties.AddProperty(DescriptionKey, boundAttributeDescriptors);
+                    }
+                    else if (razorCompletionItem.TryGetAssociatedBoundAttributeParameters(out var boundAttributeParameterDescriptors))
+                    {
+                        completionItem.Properties.AddProperty(DescriptionKey, boundAttributeParameterDescriptors);
+                    }
+                    else
+                    {
+                        completionItem.Properties.AddProperty(DescriptionKey, razorCompletionItem.Description);
+                    }
                     completionItems.Add(completionItem);
                     completionItemKinds.Add(razorCompletionItem.Kind);
                 }
@@ -138,12 +181,77 @@ namespace Microsoft.VisualStudio.Editor.Razor
 
         public Task<object> GetDescriptionAsync(IAsyncCompletionSession session, CompletionItem item, CancellationToken token)
         {
-            if (!item.Properties.TryGetProperty<string>(DescriptionKey, out var directiveDescription))
+            if (item is null)
             {
-                directiveDescription = string.Empty;
+                throw new ArgumentNullException(nameof(item));
             }
 
-            return Task.FromResult<object>(directiveDescription);
+            if (item.Properties.TryGetProperty(DescriptionKey, out object descriptionObject))
+            {
+                switch (descriptionObject)
+                {
+                    case string directiveDescription:
+                            return Task.FromResult<object>(directiveDescription);
+                    case IEnumerable<BoundAttributeDescriptor> boundAttributes:
+                        {
+                            // We're assuming these bound attributes are directive attributes because that's the only system that utilizes this today.
+
+                            var descriptionBuilder = new StringBuilder();
+                            var lastLength = 0;
+                            foreach (var boundAttribute in boundAttributes)
+                            {
+                                // TODO: UNCOMMENT
+                                //Debug.Assert(boundAttribute.Name[0] == '@', "This call path currently only supports directive attributes.");
+
+                                if (lastLength > 0)
+                                {
+                                    descriptionBuilder.AppendLine(new string('-', lastLength));
+                                    descriptionBuilder.AppendLine();
+                                }
+
+                                lastLength = boundAttribute.Documentation.Length;
+                                descriptionBuilder.AppendLine(boundAttribute.DisplayName);
+                                descriptionBuilder.AppendLine(boundAttribute.Documentation);
+                            }
+
+                            return Task.FromResult<object>(descriptionBuilder.ToString());
+                        }
+                    case IReadOnlyDictionary<BoundAttributeParameterDescriptor, TagHelperDescriptor> boundAttributeParameterMappings:
+                        {
+                            // We're assuming these bound attributes are directive attributes because that's the only system that utilizes this today.
+
+                            var descriptionBuilder = new StringBuilder();
+                            var lastLength = 0;
+                            foreach (var kvp in boundAttributeParameterMappings)
+                            {
+                                // TODO: UNCOMMENT
+                                //Debug.Assert(boundAttribute.Name[0] == '@', "This call path currently only supports directive attributes.");
+
+                                if (lastLength > 0)
+                                {
+                                    descriptionBuilder.AppendLine(new string('-', lastLength));
+                                    descriptionBuilder.AppendLine();
+                                }
+
+                                var parameterDescriptor = kvp.Key;
+                                lastLength = parameterDescriptor.Documentation.Length;
+
+                                var returnTypeName = GetSimpleName(parameterDescriptor.TypeName);
+                                descriptionBuilder.Append(returnTypeName);
+                                descriptionBuilder.Append(' ');
+                                var tagHelperTypeName = kvp.Value.GetTypeName();
+                                descriptionBuilder.Append(tagHelperTypeName);
+                                descriptionBuilder.Append('.');
+                                descriptionBuilder.AppendLine(parameterDescriptor.GetPropertyName());
+                                descriptionBuilder.AppendLine(parameterDescriptor.Documentation);
+                            }
+
+                            return Task.FromResult<object>(descriptionBuilder.ToString());
+                        }
+                }
+            }
+
+            return Task.FromResult<object>(string.Empty);
         }
 
         public CompletionStartData InitializeCompletion(CompletionTrigger trigger, SnapshotPoint triggerLocation, CancellationToken token)
@@ -190,7 +298,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
             }
 
             var leftMostCharacter = snapshot[leftEnd];
-            if (leftMostCharacter != '#') // TODO: Change back to an @
+            if (leftMostCharacter != 'b') // TODO: Change back to an @
             {
                 // The left side of our simple expression should always be a Razor transition
                 return CompletionStartData.DoesNotParticipateInCompletion;
@@ -257,6 +365,17 @@ namespace Microsoft.VisualStudio.Editor.Razor
         private static bool IsInvalidAttributeDelimiter(char currentCharacter)
         {
             return currentCharacter == '<' || currentCharacter == '>' || currentCharacter == '\'' || currentCharacter == '"';
+        }
+
+        // Internal for testing
+        internal static string GetSimpleName(string typeName)
+        {
+            if (PrimitiveDisplayTypeNameLookups.TryGetValue(typeName, out var simpleName))
+            {
+                return simpleName;
+            }
+
+            return typeName;
         }
     }
 }

@@ -217,7 +217,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
                 };
 
                 await manager.InitializeWithDocumentAsync(edit.OldSnapshot);
-                var getSyntaxTreeTask = manager.InnerParser.GetLatestSyntaxTreeAsync(changed);
+                var getSyntaxTreeTask = manager.InnerParser.GetLatestCodeDocumentAsync(changed);
 
                 Assert.False(getSyntaxTreeTask.IsCompleted);
 

@@ -39,11 +39,6 @@ namespace Microsoft.VisualStudio.Editor.Razor
                 throw new ArgumentNullException(nameof(attributes));
             }
 
-            if (inHTMLSchema == null)
-            {
-                throw new ArgumentNullException(nameof(inHTMLSchema));
-            }
-
             DocumentContext = documentContext;
             ExistingCompletions = existingCompletions;
             CurrentTagName = currentTagName;
@@ -51,7 +46,7 @@ namespace Microsoft.VisualStudio.Editor.Razor
             Attributes = attributes;
             CurrentParentTagName = currentParentTagName;
             CurrentParentIsTagHelper = currentParentIsTagHelper;
-            InHTMLSchema = inHTMLSchema;
+            InHTMLSchema = inHTMLSchema ?? ((_) => false);
         }
 
         public TagHelperDocumentContext DocumentContext { get; }

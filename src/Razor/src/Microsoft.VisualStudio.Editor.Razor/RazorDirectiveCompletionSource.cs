@@ -72,9 +72,9 @@ namespace Microsoft.VisualStudio.Editor.Razor
 
             try
             {
-                var syntaxTree = await _parser.GetLatestSyntaxTreeAsync(triggerLocation.Snapshot, token);
+                var codeDocument = await _parser.GetLatestCodeDocumentAsync(triggerLocation.Snapshot, token);
                 var location = new SourceSpan(triggerLocation.Position, 0);
-                var razorCompletionItems = _completionFactsService.GetCompletionItems(syntaxTree, location);
+                var razorCompletionItems = _completionFactsService.GetCompletionItems(codeDocument, location);
 
                 var completionItems = new List<CompletionItem>();
                 foreach (var razorCompletionItem in razorCompletionItems)
