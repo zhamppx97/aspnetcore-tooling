@@ -18,11 +18,6 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@types/mocha@2.2.42":
-  version "2.2.42"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-2.2.42.tgz#ab769f51d37646b6fe8d4a086a98c285b1fab3f5"
-  integrity sha512-b6gVDoxEbAQGwbV7gSzeFw/hy3/eEAokztktdzl4bHvGgb9K5zW4mVQDlVYch2w31m8t/J7L2iqhQvz3r5edCQ==
-
 "@types/node@9.4.7":
   version "9.4.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.4.7.tgz#57d81cd98719df2c9de118f2d5f3b1120dcd7275"

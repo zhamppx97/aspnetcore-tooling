@@ -154,7 +154,6 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "@types/mocha": "2.2.42",
         "@types/node": "9.4.7",
         "cross-env": "^5.2.0",
         "ts-node": "^7.0.1",
