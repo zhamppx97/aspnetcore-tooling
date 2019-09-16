@@ -27,11 +27,13 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "${workspaceFolder}/src/Razor/test/testapps/",
-                "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/client/out/test"
+                "--extensionDevelopmentPath=${workspaceFolder}/src/Razor/src/Microsoft.AspNetCore.Razor.VSCode.Extension",
+                "--extensionTestsPath=${workspaceFolder}/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTest/dist",
             ],
             "outFiles": [
-                "${workspaceFolder}/client/out/test/**/*.js"
+                "${workspaceFolder}/src/Razor/src/Microsoft.AspNetCore.Razor.VSCode.Extension/out/**/*.js",
+                "${workspaceFolder}/src/Razor/src/Microsoft.AspNetCore.Razor.VSCode/dist/**/*.js",
+                "${workspaceFolder}/src/Razor/src/Microsoft.AspNetCore.Razor.VSCode.FunctionalTest/dist/**/*.js",
             ],
             "preLaunchTask": "CompileExtension"
         },
@@ -39,18 +41,16 @@
             "type": "node",
             "request": "launch",
             "name": "Run Unit Tests",
-            "program": "${workspaceFolder}/client/node_modules/mocha/bin/_mocha",
-            "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999",
-                "--colors",
-                "${workspaceFolder}/client/out/unittest"
+            "runtimeExecutable": "yarn",
+            "cwd": "${workspaceFolder}/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.Test",
+            "runtimeArgs": [
+                "test:debug"
             ],
+            "port": 9229,
             "sourceMaps": true,
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": "CompileExtension"
         },
+
     ]
 }

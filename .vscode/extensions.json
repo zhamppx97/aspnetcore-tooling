@@ -1,5 +1,7 @@
 {
 	"recommendations": [
-		"eg2.tslint"
+		"eg2.tslint",
+		"ms-vscode.csharp",
+		"EditorConfig.EditorConfig"
 	]
 }

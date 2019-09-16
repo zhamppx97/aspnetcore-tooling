@@ -12,7 +12,8 @@
         "lint": "tslint --project ./",
         "watch": "yarn run clean && yarn run lint && tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "yarn build && jest"
+        "test": "yarn build && jest",
+        "test:debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand"
     },
     "devDependencies": {
         "@types/jest": "^24.0.6",
