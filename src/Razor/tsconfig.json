@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
     "target": "es6",
-    "lib": [
-      "es6",
-      "es2017.object"
-    ],
+    "lib": [ "es6" ],
     "declaration": true,
     "strict": true,
     "moduleResolution": "node",

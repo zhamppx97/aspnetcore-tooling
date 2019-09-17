@@ -30,6 +30,8 @@
         "onCommand:csharp.downloadDebugger",
         "onCommand:csharp.listProcess",
         "onCommand:csharp.listRemoteProcess",
+        "onCommand:extension.configureRazorDevMode",
+        "onCommand:extension.resetRazorDevModeConfiguration",
         "workspaceContains:project.json",
         "workspaceContains:*.csproj",
         "workspaceContains:*.sln",

@@ -4,24 +4,27 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as cp from 'child_process';
+import * as fs from 'fs';
 import * as path from 'path';
+import * as rimraf from 'rimraf';
 import * as vscode from 'vscode';
 
-export const repoRoot = path.join(__dirname, '..', '..', '..');
-export const basicRazorApp30Root = path.join(repoRoot, 'src', 'Razor', 'test', 'testapps', 'SimpleMvc');
-export const basicRazorApp21Root = path.join(repoRoot, 'src', 'Razor', 'test', 'testapps', 'SimpleMvc21');
-export const basicRazorApp10Root = path.join(repoRoot, 'src', 'Razor', 'test', 'testapps', 'SimpleMvc11');
+export const razorRoot = path.join(__dirname, '..', '..', '..');
+export const basicRazorApp30Root = path.join(razorRoot, 'test', 'testapps', 'MvcWithComponents');
+export const basicRazorApp21Root = path.join(razorRoot, 'test', 'testapps', 'SimpleMvc21');
+export const basicRazorApp10Root = path.join(razorRoot, 'test', 'testapps', 'SimpleMvc11');
 
-export async function pollUntil(fn: () => boolean, timeoutMs: number) {
-    const pollInterval = 50;
+export async function pollUntil(fn: () => boolean, timeoutMs: number, pollInterval?: number) {
+    const resolvedPollInterval = pollInterval ? pollInterval : 50;
+
     let timeWaited = 0;
     while (!fn()) {
         if (timeWaited >= timeoutMs) {
             throw new Error(`Timed out after ${timeoutMs}ms.`);
         }
 
-        await new Promise(r => setTimeout(r, pollInterval));
-        timeWaited += pollInterval;
+        await new Promise(r => setTimeout(r, resolvedPollInterval));
+        timeWaited += resolvedPollInterval;
     }
 }
 
@@ -104,6 +107,71 @@ export async function dotnetRestore(cwd: string): Promise<void> {
     });
 }
 
+export async function waitForProjectReady(directory: string) {
+    await cleanBinAndObj(directory);
+    await csharpExtensionReady();
+    await htmlLanguageFeaturesExtensionReady();
+    await dotnetRestore(directory);
+    await razorExtensionReady();
+    await waitForProjectConfigured(directory);
+}
+
+export async function waitForProjectConfigured(directory: string) {
+    const projectConfigFile = 'project.razor.json';
+
+    if (!fs.existsSync(directory)) {
+        throw new Error(`Project does not exist: ${directory}`);
+    }
+
+    const objDirectory = path.join(directory, 'obj');
+    await pollUntil(() => {
+        if (findInDir(objDirectory, projectConfigFile)) {
+            return true;
+        }
+
+        return false;
+    }, /* timeout */ 60000, /* pollInterval */ 250);
+}
+
+export async function cleanBinAndObj(directory: string): Promise<void> {
+    const binDirectory = path.join(directory, 'bin');
+    const cleanBinPromise = new Promise<void>((resolve, reject) => {
+        if (!fs.existsSync(binDirectory)) {
+            // Already clean;
+            resolve();
+            return;
+        }
+
+        rimraf(binDirectory, (error) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve();
+            }
+        });
+    });
+
+    const objDirectory = path.join(directory, 'obj');
+    const cleanObjPromise = new Promise<void>((resolve, reject) => {
+        if (!fs.existsSync(objDirectory)) {
+            // Already clean;
+            resolve();
+            return;
+        }
+
+        rimraf(objDirectory, (error) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve();
+            }
+        });
+    });
+
+    await cleanBinPromise;
+    await cleanObjPromise;
+}
+
 export async function extensionActivated<T>(identifier: string) {
     const extension = vscode.extensions.getExtension<T>(identifier);
 
@@ -131,6 +199,30 @@ export async function csharpExtensionReady() {
 
 export async function htmlLanguageFeaturesExtensionReady() {
     await extensionActivated<any>('vscode.html-language-features');
+}
+
+async function razorExtensionReady() {
+    await vscode.commands.executeCommand('extension.razorActivated');
+}
+
+function findInDir(directoryPath: string, fileQuery: string): string | undefined {
+    if (!fs.existsSync(directoryPath)) {
+        return;
+    }
+
+    const files = fs.readdirSync(directoryPath);
+    for (const filename of files) {
+        const fullpath = path.join(directoryPath, filename);
+
+        if (fs.lstatSync(fullpath).isDirectory()) {
+            const result = findInDir(fullpath, fileQuery);
+            if (result) {
+                return result;
+            }
+        } else if (fullpath.indexOf(fileQuery) >= 0) {
+            return fullpath;
+        }
+    }
 }
 
 interface CSharpExtensionExports {

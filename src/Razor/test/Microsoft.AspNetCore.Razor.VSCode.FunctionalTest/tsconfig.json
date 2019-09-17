@@ -1,16 +1,10 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-	  "outDir": "dist",
-	  "baseUrl": ".",
-	  "paths": {
-		"*": [
-		  "node_modules/*"
-		]
-	  }
+	  "outDir": "dist"
 	},
 	"include": [
 	  "**/*"
-	]
+	],
+	"exclude": ["node_modules", ".vscode-test", "dist"]
   }
-  

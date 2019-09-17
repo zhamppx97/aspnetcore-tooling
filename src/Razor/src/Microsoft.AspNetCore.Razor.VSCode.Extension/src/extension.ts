@@ -40,6 +40,8 @@ export async function activate(context: vscode.ExtensionContext) {
         },
     };
 
+    vscode.commands.registerCommand('extension.razorActivated', () => extensionActivated);
+
     await registerRazorDevModeHelpers(context);
 
     await razorExtensionPackage.activate(
