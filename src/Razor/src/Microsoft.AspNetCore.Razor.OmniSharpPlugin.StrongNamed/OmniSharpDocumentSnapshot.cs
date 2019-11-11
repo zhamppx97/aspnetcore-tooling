@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.AspNetCore.Razor.OmniSharpPlugin
 {
@@ -41,5 +43,12 @@ namespace Microsoft.AspNetCore.Razor.OmniSharpPlugin
         public string FilePath => _documentSnapshot.FilePath;
 
         public string TargetPath => _documentSnapshot.TargetPath;
+
+        public SourceText GetGeneratedCodeSourceText()
+        {
+            var generatedCodeContainer = ((DefaultDocumentSnapshot)_documentSnapshot).State.HostDocument.GeneratedCodeContainer;
+            var sourceText = generatedCodeContainer.SourceTextContainer.CurrentText;
+            return sourceText;
+        }
     }
 }

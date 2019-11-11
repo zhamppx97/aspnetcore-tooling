@@ -9,6 +9,6 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
     {
         public abstract void Initialize(ProjectSnapshotManager projectManager);
 
-        public abstract void DocumentProcessed(DocumentSnapshot document);
+        public abstract void DocumentProcessed(ProjectSnapshot project, DocumentSnapshot document);
     }
 }

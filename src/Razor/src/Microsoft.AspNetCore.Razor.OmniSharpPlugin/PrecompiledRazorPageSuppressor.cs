@@ -65,12 +65,8 @@ namespace Microsoft.AspNetCore.Razor.OmniSharpPlugin
                         break;
                     }
 
-                    if (!document.FilePath.Contains("RazorDeclaration"))
-                    {
-                        // Razor output file that is not a declaration file.
-                        _workspace.RemoveDocument(document.Id);
-                        break;
-                    }
+                    // Razor output file
+                    _workspace.RemoveDocument(document.Id);
 
                     break;
             }
