@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Razor.Test.Common;
@@ -51,6 +52,36 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
         {
             RazorDiagnosticFactory.CreateDirective_BlockDirectiveCannotBeImported("test")
         };
+
+        [Fact]
+        public void DocumentProcessed_NewWorkQueued_RestartsTimer()
+        {
+            // Arrange
+            var processedOpenDocument = TestDocumentSnapshot.Create(OpenedDocument.FilePath);
+            var codeDocument = CreateCodeDocument(SingleDiagnosticCollection);
+            processedOpenDocument.With(codeDocument);
+            var languageServerDocument = Mock.Of<ILanguageServerDocument>();
+            var languageServer = Mock.Of<ILanguageServer>(server => server.Document == languageServerDocument);
+            using (var publisher = new TestRazorDiagnosticsPublisher(Dispatcher, languageServer, LoggerFactory)
+            {
+                BlockBackgroundWorkCompleting = new ManualResetEventSlim(initialState: true),
+                NotifyBackgroundWorkCompleting = new ManualResetEventSlim(initialState: false),
+            })
+            {
+                publisher.Initialize(ProjectManager);
+                publisher.DocumentProcessed(processedOpenDocument);
+                Assert.True(publisher.NotifyBackgroundWorkCompleting.Wait(TimeSpan.FromSeconds(2)));
+                publisher.NotifyBackgroundWorkCompleting.Reset();
+
+                // Act
+                publisher.DocumentProcessed(processedOpenDocument);
+                publisher.BlockBackgroundWorkCompleting.Set();
+
+                // Assert
+                // Verify that background work starts completing "again"
+                Assert.True(publisher.NotifyBackgroundWorkCompleting.Wait(TimeSpan.FromSeconds(2)));
+            }
+        }
 
         [Fact]
         public async Task PublishDiagnosticsAsync_NewDocumentDiagnosticsGetPublished()
@@ -234,6 +265,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 ILanguageServer languageServer,
                 ILoggerFactory loggerFactory) : base(foregroundDispatcher, languageServer, loggerFactory)
             {
+                _publishDelay = TimeSpan.FromMilliseconds(1);
             }
 
             public void Dispose()
