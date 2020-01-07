@@ -280,7 +280,6 @@ export enum StatusBarAlignment {
     Right = 2
 }
 
-
 export interface StatusBarItem {
 
     /**
@@ -358,7 +357,6 @@ export interface Disposable {
     dispose(): any;
 }
 
-
 export interface CancellationToken {
 
     /**
@@ -371,7 +369,6 @@ export interface CancellationToken {
      */
     onCancellationRequested: Event<any>;
 }
-
 
 export interface DocumentFilter {
 

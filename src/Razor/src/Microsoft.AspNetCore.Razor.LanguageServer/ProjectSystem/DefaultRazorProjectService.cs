@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Razor.LanguageServer.Common;
 using Microsoft.AspNetCore.Razor.LanguageServer.Common.Serialization;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 using Microsoft.CodeAnalysis.Text;
@@ -27,6 +24,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
         private readonly DocumentVersionCache _documentVersionCache;
         private readonly FilePathNormalizer _filePathNormalizer;
         private readonly DocumentResolver _documentResolver;
+        private readonly TelemetryPublisher _telemetryPublisher;
         private readonly ILogger _logger;
 
         public DefaultRazorProjectService(
@@ -38,6 +36,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             DocumentVersionCache documentVersionCache,
             FilePathNormalizer filePathNormalizer,
             ProjectSnapshotManagerAccessor projectSnapshotManagerAccessor,
+            TelemetryPublisher telemetryPublisher,
             ILoggerFactory loggerFactory)
         {
             if (foregroundDispatcher == null)
@@ -80,6 +79,11 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
                 throw new ArgumentNullException(nameof(projectSnapshotManagerAccessor));
             }
 
+            if (telemetryPublisher == null)
+            {
+                throw new ArgumentNullException(nameof(telemetryPublisher));
+            }
+
             if (loggerFactory == null)
             {
                 throw new ArgumentNullException(nameof(loggerFactory));
@@ -93,6 +97,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             _documentVersionCache = documentVersionCache;
             _filePathNormalizer = filePathNormalizer;
             _projectSnapshotManagerAccessor = projectSnapshotManagerAccessor;
+            _telemetryPublisher = telemetryPublisher;
             _logger = loggerFactory.CreateLogger<DefaultRazorProjectService>();
         }
 
@@ -130,6 +135,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
 
             _logger.LogInformation($"Adding document '{filePath}' to project '{projectSnapshot.FilePath}'.");
             _projectSnapshotManagerAccessor.Instance.DocumentAdded(defaultProject.HostProject, hostDocument, textLoader);
+
+            ReportDocumentAdded(filePath, projectSnapshot);
         }
 
         public override void OpenDocument(string filePath, SourceText sourceText, long version)
@@ -161,6 +168,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
                 // Start generating the C# for the document so it can immediately be ready for incoming requests.
                 documentSnapshot.GetGeneratedOutputAsync();
             }
+
+            ReportDocumentOpened(filePath, projectSnapshot);
         }
 
         public override void CloseDocument(string filePath)
@@ -177,6 +186,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             var defaultProject = (DefaultProjectSnapshot)projectSnapshot;
             _logger.LogInformation($"Closing document '{textDocumentPath}' in project '{projectSnapshot.FilePath}'.");
             _projectSnapshotManagerAccessor.Instance.DocumentClosed(defaultProject.HostProject.FilePath, textDocumentPath, textLoader);
+
+            ReportDocumentClosed(filePath, projectSnapshot);
         }
 
         public override void RemoveDocument(string filePath)
@@ -199,6 +210,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             var defaultProject = (DefaultProjectSnapshot)projectSnapshot;
             _logger.LogInformation($"Removing document '{textDocumentPath}' from project '{projectSnapshot.FilePath}'.");
             _projectSnapshotManagerAccessor.Instance.DocumentRemoved(defaultProject.HostProject, document.State.HostDocument);
+
+            ReportDocumentRemoved(filePath, projectSnapshot);
         }
 
         public override void UpdateDocument(string filePath, SourceText sourceText, long version)
@@ -215,6 +228,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             _logger.LogTrace($"Updating document '{textDocumentPath}'.");
             _projectSnapshotManagerAccessor.Instance.DocumentChanged(defaultProject.HostProject.FilePath, textDocumentPath, sourceText);
 
+            ReportDocumentUpdated(filePath, projectSnapshot);
             TrackDocumentVersion(textDocumentPath, version);
         }
 
@@ -227,6 +241,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             _projectSnapshotManagerAccessor.Instance.ProjectAdded(hostProject);
             _logger.LogInformation($"Added project '{filePath}' to project system.");
 
+            ReportProjectAdded(hostProject);
             TryMigrateMiscellaneousDocumentsToProject();
         }
 
@@ -246,6 +261,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             _logger.LogInformation($"Removing project '{filePath}' from project system.");
             _projectSnapshotManagerAccessor.Instance.ProjectRemoved(project.HostProject);
 
+            ReportProjectRemoved(project);
             TryMigrateDocumentsFromRemovedProject(project);
         }
 
@@ -303,6 +319,73 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
 
             var hostProject = new HostProject(project.FilePath, configuration, rootNamespace);
             _projectSnapshotManagerAccessor.Instance.ProjectConfigurationChanged(hostProject);
+
+            ReportProjectUpdated(project);
+        }
+
+        private void ReportDocumentAdded(string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            ReportDocumentTelemetry("VSCode.Razor.DocumentAdded", documentPath, projectSnapshot);
+        }
+
+        private void ReportDocumentRemoved(string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            ReportDocumentTelemetry("VSCode.Razor.DocumentRemoved", documentPath, projectSnapshot);
+        }
+
+        private void ReportDocumentClosed(string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            ReportDocumentTelemetry("VSCode.Razor.DocumentClosed", documentPath, projectSnapshot);
+        }
+
+        private void ReportDocumentOpened(string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            ReportDocumentTelemetry("VSCode.Razor.DocumentOpened", documentPath, projectSnapshot);
+        }
+
+        private void ReportDocumentUpdated(string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            ReportDocumentTelemetry("VSCode.Razor.DocumentUpdated", documentPath, projectSnapshot);
+        }
+
+        private void ReportProjectAdded(HostProject hostProject)
+        {
+            _telemetryPublisher.Publish("VSCode.Razor.ProjectAdded");
+            ReportProjectInfoTelemetry(hostProject.FilePath, hostProject.Configuration);
+        }
+
+        private void ReportProjectRemoved(ProjectSnapshot projectSnapshot)
+        {
+            _telemetryPublisher.Publish("VSCode.Razor.ProjectRemoved");
+            ReportProjectInfoTelemetry(projectSnapshot.FilePath, projectSnapshot.Configuration);
+        }
+
+        private void ReportProjectUpdated(ProjectSnapshot projectSnapshot)
+        {
+            _telemetryPublisher.Publish("VSCode.Razor.ProjectUpdated");
+            ReportProjectInfoTelemetry(projectSnapshot.FilePath, projectSnapshot.Configuration);
+        }
+
+        private void ReportDocumentTelemetry(string eventName, string documentPath, ProjectSnapshot projectSnapshot)
+        {
+            var telemetry = new Dictionary<string, string>{
+                {"DocumentPath", documentPath },
+                {"ProjectPath", projectSnapshot.FilePath }
+            };
+            _telemetryPublisher.Publish(eventName, telemetry);
+            ReportProjectInfoTelemetry(projectSnapshot.FilePath, projectSnapshot.Configuration);
+        }
+
+        private void ReportProjectInfoTelemetry(string projectPath, RazorConfiguration configuration)
+        {
+            var telemetry = new Dictionary<string, string>
+            {
+                { "Path", projectPath },
+                { "ConfigurationName", configuration.ConfigurationName },
+                { "LanguageVersion", configuration.LanguageVersion.ToString() }
+            };
+
+            _telemetryPublisher.Publish("VSCode.Razor.ProjectInfo", telemetry);
         }
 
         private void UpdateProjectDocuments(IReadOnlyList<DocumentSnapshotHandle> documents, DefaultProjectSnapshot project)
@@ -417,25 +500,6 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             }
 
             _documentVersionCache.TrackDocumentVersion(documentSnapshot, version);
-        }
-
-        private class DelegatingTextLoader : TextLoader
-        {
-            private readonly DocumentSnapshot _fromDocument;
-            public DelegatingTextLoader(DocumentSnapshot fromDocument)
-            {
-                _fromDocument = fromDocument ?? throw new ArgumentNullException(nameof(fromDocument));
-            }
-            public override async Task<TextAndVersion> LoadTextAndVersionAsync(
-               Workspace workspace,
-               DocumentId documentId,
-               CancellationToken cancellationToken)
-            {
-                var sourceText = await _fromDocument.GetTextAsync();
-                var version = await _fromDocument.GetTextVersionAsync();
-                var textAndVersion = TextAndVersion.Create(sourceText, version.GetNewerVersion());
-                return textAndVersion;
-            }
         }
     }
 }

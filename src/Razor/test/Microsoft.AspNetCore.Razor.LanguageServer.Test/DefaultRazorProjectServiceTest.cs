@@ -875,12 +875,14 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             ProjectResolver projectResolver,
             ProjectSnapshotManagerBase projectSnapshotManager,
             DocumentResolver documentResolver = null,
-            DocumentVersionCache documentVersionCache = null)
+            DocumentVersionCache documentVersionCache = null,
+            TelemetryPublisher telemetryPublisher = null)
         {
             documentVersionCache = documentVersionCache ?? Mock.Of<DocumentVersionCache>();
             var filePathNormalizer = new FilePathNormalizer();
             var accessor = Mock.Of<ProjectSnapshotManagerAccessor>(a => a.Instance == projectSnapshotManager);
             documentResolver = documentResolver ?? Mock.Of<DocumentResolver>();
+            telemetryPublisher = telemetryPublisher ?? Mock.Of<TelemetryPublisher>();
             var hostDocumentFactory = new TestHostDocumentFactory();
             var remoteTextLoaderFactory = Mock.Of<RemoteTextLoaderFactory>(factory => factory.Create(It.IsAny<string>()) == Mock.Of<TextLoader>());
             var projectService = new DefaultRazorProjectService(
@@ -892,6 +894,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 documentVersionCache,
                 filePathNormalizer,
                 accessor,
+                telemetryPublisher,
                 LoggerFactory);
 
             return projectService;

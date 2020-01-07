@@ -155,7 +155,7 @@ export class RazorDocumentManager implements IRazorDocumentManager {
     }
 
     private async documentChanged(uri: vscode.Uri) {
-        const document = await this._getDocument(uri);
+        const document = this._getDocument(uri);
 
         const activeTextEditor = vscode.window.activeTextEditor;
         if (activeTextEditor && activeTextEditor.document.uri === uri) {

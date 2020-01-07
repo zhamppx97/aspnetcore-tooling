@@ -14,7 +14,6 @@ import { reportTelemetryForDocuments } from './DocumentTelemetryListener';
 import { HostEventStream } from './HostEventStream';
 import { RazorHtmlFeature } from './Html/RazorHtmlFeature';
 import { IEventEmitterFactory } from './IEventEmitterFactory';
-import { reportTelemetryForProjects } from './ProjectTelemetryListener';
 import { ProvisionalCompletionOrchestrator } from './ProvisionalCompletionOrchestrator';
 import { RazorCodeLensProvider } from './RazorCodeLensProvider';
 import { RazorCompletionItemProvider } from './RazorCompletionItemProvider';
@@ -40,7 +39,7 @@ import { RazorSignatureHelpProvider } from './RazorSignatureHelpProvider';
 import { TelemetryReporter } from './TelemetryReporter';
 
 export async function activate(context: ExtensionContext, languageServerDir: string, eventStream: HostEventStream) {
-    const telemetryReporter = new TelemetryReporter(eventStream);
+    const telemetryReporter = new TelemetryReporter(vscode, eventStream);
     const eventEmitterFactory: IEventEmitterFactory = {
         create: <T>() => new vscode.EventEmitter<T>(),
     };
@@ -61,7 +60,6 @@ export async function activate(context: ExtensionContext, languageServerDir: str
         const documentManager = new RazorDocumentManager(languageServerClient, logger);
         reportTelemetryForDocuments(documentManager, telemetryReporter);
         const projectManager = new RazorProjectManager(logger);
-        reportTelemetryForProjects(projectManager, telemetryReporter);
         const languageConfiguration = new RazorLanguageConfiguration();
         const csharpFeature = new RazorCSharpFeature(documentManager, eventEmitterFactory, logger);
         const htmlFeature = new RazorHtmlFeature(documentManager, languageServiceClient, eventEmitterFactory, logger);

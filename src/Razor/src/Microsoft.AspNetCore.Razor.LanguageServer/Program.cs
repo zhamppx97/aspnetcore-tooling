@@ -58,6 +58,33 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 
             Serializer.Instance.JsonSerializer.Converters.RegisterRazorConverters();
 
+            var factory = new LoggerFactory();
+
+            using(var server = await CreateLanguageServer(factory, logLevel))
+            {
+                // Workaround for https://github.com/OmniSharp/csharp-language-server-protocol/issues/106
+                var languageServer = (OmniSharp.Extensions.LanguageServer.Server.LanguageServer)server;
+                languageServer.MinimumLogLevel = logLevel;
+
+                try
+                {
+                    var logger = factory.CreateLogger<Program>();
+                    var assemblyInformationAttribute = typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                    logger.LogInformation("Razor Language Server version " + assemblyInformationAttribute.InformationalVersion);
+                }
+                catch
+                {
+                    // Swallow exceptions from determining assembly information.
+                }
+
+                await server.WaitForExit;
+            }
+
+            TempDirectory.Instance.Dispose();
+        }
+
+        private static async Task<ILanguageServer> CreateLanguageServer(ILoggerFactory factory, LogLevel logLevel)
+        {
             ILanguageServer server = null;
             server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(options =>
                 options
@@ -98,6 +125,9 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                         var foregroundDispatcher = new VSCodeForegroundDispatcher();
                         services.AddSingleton<ForegroundDispatcher>(foregroundDispatcher);
 
+                        var telemetryPublisher = new ApplicationInsightsTelemetryPublisher();
+                        services.AddSingleton<TelemetryPublisher>(telemetryPublisher);
+
                         var csharpPublisher = new DefaultCSharpPublisher(foregroundDispatcher, new Lazy<OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer>(() => server));
                         services.AddSingleton<ProjectSnapshotChangeTrigger>(csharpPublisher);
                         services.AddSingleton<CSharpPublisher>(csharpPublisher);
@@ -116,24 +146,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                         services.AddSingleton<ProjectSnapshotChangeTrigger>(containerStore);
                     }));
 
-            // Workaround for https://github.com/OmniSharp/csharp-language-server-protocol/issues/106
-            var languageServer = (OmniSharp.Extensions.LanguageServer.Server.LanguageServer)server;
-
-            try
-            {
-                var factory = new LoggerFactory();
-                var logger = factory.CreateLogger<Program>();
-                var assemblyInformationAttribute = typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                logger.LogInformation("Razor Language Server version " + assemblyInformationAttribute.InformationalVersion);
-            }
-            catch
-            {
-                // Swallow exceptions from determining assembly information.
-            }
-
-            await server.WaitForExit;
-
-            TempDirectory.Instance.Dispose();
+                return server;
         }
     }
 }
