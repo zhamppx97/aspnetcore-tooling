@@ -60,11 +60,10 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 
             var factory = new LoggerFactory();
 
-            using(var server = await CreateLanguageServer(factory, logLevel))
+            using(var server = await CreateLanguageServer(logLevel))
             {
                 // Workaround for https://github.com/OmniSharp/csharp-language-server-protocol/issues/106
                 var languageServer = (OmniSharp.Extensions.LanguageServer.Server.LanguageServer)server;
-                languageServer.MinimumLogLevel = logLevel;
 
                 try
                 {
@@ -83,7 +82,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             TempDirectory.Instance.Dispose();
         }
 
-        private static async Task<ILanguageServer> CreateLanguageServer(ILoggerFactory factory, LogLevel logLevel)
+        private static async Task<ILanguageServer> CreateLanguageServer(LogLevel logLevel)
         {
             ILanguageServer server = null;
             server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(options =>

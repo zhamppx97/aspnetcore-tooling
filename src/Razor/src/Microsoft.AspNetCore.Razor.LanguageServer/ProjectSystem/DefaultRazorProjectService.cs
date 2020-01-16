@@ -146,7 +146,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
             var textDocumentPath = _filePathNormalizer.Normalize(filePath);
             if (!_documentResolver.TryResolveDocument(textDocumentPath, out _))
             {
-                // Document hasn't been added. This usually occurs when VSCode trumps all other initialization 
+                // Document hasn't been added. This usually occurs when VSCode trumps all other initialization
                 // processes and pre-initializes already open documents.
                 AddDocument(filePath);
             }
@@ -356,6 +356,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem
 
         private void ReportProjectRemoved(ProjectSnapshot projectSnapshot)
         {
+            // Possibly we shouldn't push the filepaths, it seems they aren't pushed by the existing telemetry
             _telemetryPublisher.Publish("VSCode.Razor.ProjectRemoved");
             ReportProjectInfoTelemetry(projectSnapshot.FilePath, projectSnapshot.Configuration);
         }
