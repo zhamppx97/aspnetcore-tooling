@@ -3,12 +3,16 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.Razor.Workspaces;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Internal;
 using Microsoft.VisualStudio.Editor.Razor;
 
@@ -18,20 +22,22 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
     [ExportMetadata("Extensions", new string[] { "cshtml", "razor", })]
     [Export(typeof(RazorDynamicFileInfoProvider))]
     [Export(typeof(IDynamicFileInfoProvider))]
-    internal class DefaultRazorDynamicFileInfoProvider : RazorDynamicFileInfoProvider, IDynamicFileInfoProvider
+    [Export(typeof(ILSPDocumentFileInfoProvider))]
+    internal class DefaultRazorDynamicFileInfoProvider : RazorDynamicFileInfoProvider, IDynamicFileInfoProvider, ILSPDocumentFileInfoProvider
     {
         private readonly ConcurrentDictionary<Key, Entry> _entries;
         private readonly Func<Key, Entry> _createEmptyEntry;
         private readonly DocumentServiceProviderFactory _factory;
 
         [ImportingConstructor]
-        public DefaultRazorDynamicFileInfoProvider(DocumentServiceProviderFactory factory)
+        public DefaultRazorDynamicFileInfoProvider(
+            DocumentServiceProviderFactory factory)
         {
             if (factory == null)
             {
                 throw new ArgumentNullException(nameof(factory));
             }
-            
+
             _factory = factory;
 
             _entries = new ConcurrentDictionary<Key, Entry>();
@@ -39,6 +45,35 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
         }
 
         public event EventHandler<string> Updated;
+
+        public void UpdateFileInfo(Uri uri, ICSharpOutputContainer csharpOutputContainer)
+        {
+            var filePath = uri.GetAbsoluteOrUNCPath().Replace('/', '\\');
+            KeyValuePair<Key, Entry>? associatedKvp = null;
+            foreach (var entry in _entries)
+            {
+                if (FilePathComparer.Instance.Equals(filePath, entry.Key.FilePath))
+                {
+                    associatedKvp = entry;
+                    break;
+                }
+            }
+
+            if (associatedKvp == null)
+            {
+                return;
+            }
+
+            var associatedKey = associatedKvp.Value.Key;
+            var associatedEntry = associatedKvp.Value.Value;
+
+            lock (associatedEntry.Lock)
+            {
+                associatedEntry.Current = CreateInfo(associatedKey, csharpOutputContainer);
+            }
+
+            Updated?.Invoke(this, filePath);
+        }
 
         // Called by us to update entries
         public override void UpdateFileInfo(string projectFilePath, DynamicDocumentContainer documentContainer)
@@ -140,16 +175,23 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
 
         private DynamicFileInfo CreateEmptyInfo(Key key)
         {
-            var filename = Path.ChangeExtension(key.FilePath, ".g.cs");
+            var filename = key.FilePath + "__virtual.cs";
             var textLoader = new EmptyTextLoader(filename);
             return new DynamicFileInfo(filename, SourceCodeKind.Regular, textLoader, _factory.CreateEmpty());
         }
 
         private DynamicFileInfo CreateInfo(Key key, DynamicDocumentContainer document)
         {
-            var filename = Path.ChangeExtension(key.FilePath, ".g.cs");
+            var filename = key.FilePath + "__virtual.cs";
             var textLoader = document.GetTextLoader(filename);
             return new DynamicFileInfo(filename, SourceCodeKind.Regular, textLoader, _factory.Create(document));
+        }
+
+        private DynamicFileInfo CreateInfo(Key key, ICSharpOutputContainer csharpOutputContainer)
+        {
+            var filename = key.FilePath + "__virtual.cs";
+            var textLoader = csharpOutputContainer.CreateGeneratedTextLoader(filename);
+            return new DynamicFileInfo(filename, SourceCodeKind.Regular, textLoader, _factory.CreateLSP());
         }
 
         // Using a separate handle to the 'current' file info so that can allow Roslyn to send

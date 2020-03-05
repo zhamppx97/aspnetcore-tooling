@@ -11,6 +11,8 @@ namespace Microsoft.CodeAnalysis.Razor
     {
         public abstract IDocumentServiceProvider CreateEmpty();
 
-        public abstract IDocumentServiceProvider Create(DynamicDocumentContainer documentContainer);
+        public abstract IDocumentServiceProvider Create(DocumentSnapshot document);
+
+        public abstract IDocumentServiceProvider CreateLSP();
     }
 }

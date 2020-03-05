@@ -22,9 +22,26 @@ namespace Microsoft.CodeAnalysis.Razor
             return new RazorDocumentServiceProvider(documentContainer);
         }
 
+        public override IDocumentServiceProvider CreateLSP()
+        {
+            return new LSPDocumentServiceProvider();
+        }
+
         public override IDocumentServiceProvider CreateEmpty()
         {
             return new RazorDocumentServiceProvider();
+        }
+    }
+
+    internal class LSPDocumentServiceProvider : IDocumentServiceProvider, IDocumentOperationService
+    {
+        public bool CanApplyChange => false;
+
+        public bool SupportDiagnostics => true;
+
+        public TService GetService<TService>() where TService : class, IDocumentService
+        {
+            return this as TService;
         }
     }
 }

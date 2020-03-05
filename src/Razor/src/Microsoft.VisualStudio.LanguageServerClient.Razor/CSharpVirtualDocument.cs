@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using Microsoft.CodeAnalysis.Razor.Workspaces;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.Text;
 
@@ -11,10 +13,16 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
 {
     internal class CSharpVirtualDocument : VirtualDocument
     {
+        private readonly Uri _parentDocumentUri;
+        private readonly ILSPDocumentFileInfoProvider _documentFileInfoProvider;
         private long? _hostDocumentSyncVersion;
         private CSharpVirtualDocumentSnapshot _currentSnapshot;
 
-        public CSharpVirtualDocument(Uri uri, ITextBuffer textBuffer)
+        public CSharpVirtualDocument(
+            Uri uri,
+            ITextBuffer textBuffer,
+            Uri parentDocumentUri,
+            ILSPDocumentFileInfoProvider documentFileInfoProvider)
         {
             if (uri is null)
             {
@@ -26,8 +34,20 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
                 throw new ArgumentNullException(nameof(textBuffer));
             }
 
+            if (parentDocumentUri is null)
+            {
+                throw new ArgumentNullException(nameof(parentDocumentUri));
+            }
+
+            if (documentFileInfoProvider is null)
+            {
+                throw new ArgumentNullException(nameof(documentFileInfoProvider));
+            }
+
             Uri = uri;
             TextBuffer = textBuffer;
+            _parentDocumentUri = parentDocumentUri;
+            _documentFileInfoProvider = documentFileInfoProvider;
             _currentSnapshot = UpdateSnapshot();
         }
 
@@ -79,6 +99,8 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
 
             edit.Apply();
             _currentSnapshot = UpdateSnapshot();
+            var csharpOutputContainer = new CSharpOutputContainer(_currentSnapshot.Snapshot);
+            _documentFileInfoProvider.UpdateFileInfo(_parentDocumentUri, csharpOutputContainer);
 
             return _currentSnapshot;
         }
