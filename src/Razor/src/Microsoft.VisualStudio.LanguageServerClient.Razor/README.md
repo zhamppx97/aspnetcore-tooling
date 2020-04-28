@@ -14,6 +14,31 @@ The above bits aren't yet public though, so if you have to use a master build se
 
 After doing either of the above running the `Microsoft.VisualStudio.RazorExtension` project will then result in `.razor` and `.cshtml` files being opened with our LSP editor.
 
+# Patching VSLanguageServerClient onto your local VS
+
+If you need to make changes to VSLanguageServerClient as part of your work follow the directions for patching a build of it on to your local VS [as found here](https://devdiv.visualstudio.com/DevDiv/_git/VSLanguageServerClient?path=%2FREADME.md&_a=preview) under the Debugging section. Razor Tooling members have had the best success using the patching tool, but we use the following profile instead of the one linked there:
+```json
+{
+    "variables": {
+        "$env:PatchBuildCmd": "& msbuild.exe /t:build /m $env:GitRoot\\src\\RemoteLanguage.sln",
+        "$env:PatchSourceDir": "$env:GitRoot\\bin"
+    },
+    "files": {
+        "product\\LanguageServer.Client.Definition\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Client.dll": "Common7\\IDE\\PublicAssemblies\\Microsoft.VisualStudio.LanguageServer.Client.dll",
+        "product\\RemoteLanguage\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.dll": "Common7\\IDE\\CommonExtensions\\Microsoft\\LanguageServer\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.dll",
+        "product\\RemoteLanguage.Protocol\\Debug\\netstandard1.0\\Microsoft.VisualStudio.LanguageServer.Protocol.dll": "Common7\\IDE\\PublicAssemblies\\Microsoft.VisualStudio.LanguageServer.Protocol.dll",
+        "product\\LanguageServer.Protocol.Extensions\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Protocol.Extensions.dll": "Common7\\IDE\\CommonExtensions\\Microsoft\\LanguageServer\\Microsoft.VisualStudio.LanguageServer.Protocol.Extensions.dll",
+        "product\\LanguageServer.Client.Definition\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Client.pdb": "Common7\\IDE\\PublicAssemblies\\Microsoft.VisualStudio.LanguageServer.Client.pdb",
+        "product\\RemoteLanguage\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.pdb": "Common7\\IDE\\CommonExtensions\\Microsoft\\LanguageServer\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.pdb",
+        "product\\RemoteLanguage.Protocol\\Debug\\netstandard1.0\\Microsoft.VisualStudio.LanguageServer.Protocol.pdb": "Common7\\IDE\\PublicAssemblies\\Microsoft.VisualStudio.LanguageServer.Protocol.pdb",
+        "product\\LanguageServer.Protocol.Extensions\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Protocol.Extensions.pdb": "Common7\\IDE\\CommonExtensions\\Microsoft\\LanguageServer\\Microsoft.VisualStudio.LanguageServer.Protocol.Extensions.pdb",
+        "product\\RemoteLanguage\\Debug\\net472\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.pkgdef": "Common7\\IDE\\CommonExtensions\\Microsoft\\LanguageServer\\Microsoft.VisualStudio.LanguageServer.Client.Implementation.pkgdef"
+    },
+    "commands": [
+        "Start-Process '$env:PatchTargetExe' -Wait -ArgumentList '/updateconfiguration'"
+    ]
+}
+```
 
 # FAQ
 
