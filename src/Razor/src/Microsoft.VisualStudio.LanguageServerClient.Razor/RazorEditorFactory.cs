@@ -16,7 +16,7 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
 {
     [Export(typeof(IFilePathToContentTypeProvider))]
     [Name(nameof(RazorLanguageServerFilePathToContentTypeProvider))]
-    [FileExtension(".cshtml")]
+    [FileExtension(".razor")]
     internal class RazorLanguageServerFilePathToContentTypeProvider : IFilePathToContentTypeProvider
     {
         private readonly IContentTypeRegistryService _contentTypeRegistryService;
