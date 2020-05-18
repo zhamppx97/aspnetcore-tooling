@@ -20,5 +20,9 @@
 		{ "open": "'", "close": "'" },
 		{ "open": "\"", "close": "\"" },
 		{ "open": "<", "close": ">" }
-	]
+	],
+	"indentationRules": {
+		"increaseIndentPattern": "<(?!(?:area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$",
+		"decreaseIndentPattern": "</([_:\\w][_:\\w-.\\d]*)\\s*>"
+	}
 }
