@@ -14,15 +14,34 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.VisualStudio.LanguageServerClient.Razor
 {
+
     [Export(typeof(IFilePathToContentTypeProvider))]
-    [Name(nameof(RazorLanguageServerFilePathToContentTypeProvider))]
+    [Name(nameof(LegacyRazorLanguageServerFilePathToContentTypeProvider))]
+    [FileExtension(".cshtml")]
+    internal class LegacyRazorLanguageServerFilePathToContentTypeProvider : RazorLanguageServerFilePathToContentTypeProvider
+    {
+        [ImportingConstructor]
+        public LegacyRazorLanguageServerFilePathToContentTypeProvider(IContentTypeRegistryService contentTypeRegistryService, LSPEditorFeatureDetector lspEditorFeatureDetector) : base(contentTypeRegistryService, lspEditorFeatureDetector)
+        {
+        }
+    }
+
+    [Export(typeof(IFilePathToContentTypeProvider))]
+    [Name(nameof(LatestRazorLanguageServerFilePathToContentTypeProvider))]
     [FileExtension(".razor")]
-    internal class RazorLanguageServerFilePathToContentTypeProvider : IFilePathToContentTypeProvider
+    internal class LatestRazorLanguageServerFilePathToContentTypeProvider : RazorLanguageServerFilePathToContentTypeProvider
+    {
+        [ImportingConstructor]
+        public LatestRazorLanguageServerFilePathToContentTypeProvider(IContentTypeRegistryService contentTypeRegistryService, LSPEditorFeatureDetector lspEditorFeatureDetector) : base(contentTypeRegistryService, lspEditorFeatureDetector)
+        {
+        }
+    }
+
+    internal abstract class RazorLanguageServerFilePathToContentTypeProvider : IFilePathToContentTypeProvider
     {
         private readonly IContentTypeRegistryService _contentTypeRegistryService;
         private readonly LSPEditorFeatureDetector _lspEditorFeatureDetector;
 
-        [ImportingConstructor]
         public RazorLanguageServerFilePathToContentTypeProvider(IContentTypeRegistryService contentTypeRegistryService, LSPEditorFeatureDetector lspEditorFeatureDetector)
         {
             _contentTypeRegistryService = contentTypeRegistryService;
