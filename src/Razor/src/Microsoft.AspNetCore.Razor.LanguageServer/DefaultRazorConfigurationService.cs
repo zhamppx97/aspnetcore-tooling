@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -52,7 +53,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                     }
                 };
 
-                var result = await _server.Client.SendRequest<ConfigurationParams, object[]>("workspace/configuration", request);
+                var response = _server.Client.SendRequest<ConfigurationParams>("workspace/configuration", request);
+                var result = await response.Returning<object[]>(CancellationToken.None);
                 if (result == null || result.Length < 2 || result[0] == null)
                 {
                     _logger.LogWarning("Client failed to provide the expected configuration.");

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Razor.ProjectSystem;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -242,7 +243,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 Path = filePath,
                 Host = string.Empty,
             };
-            _languageServer.Document.PublishDiagnostics(new PublishDiagnosticsParams()
+
+            _languageServer.PublishDiagnostics(new PublishDiagnosticsParams()
             {
                 Uri = uriBuilder.Uri,
                 Diagnostics = new Container<Diagnostic>(diagnostics),

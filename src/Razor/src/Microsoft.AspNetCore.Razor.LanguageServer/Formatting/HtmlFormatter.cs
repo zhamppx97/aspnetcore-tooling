@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.AspNetCore.Razor.LanguageServer.Common;
@@ -50,8 +51,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
                 Options = options
             };
 
-            var result = await _server.Client.SendRequest<RazorDocumentRangeFormattingParams, RazorDocumentRangeFormattingResponse>(
-                LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
+            var response = _server.Client.SendRequest<RazorDocumentRangeFormattingParams>(LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
+            var result = await response.Returning<RazorDocumentRangeFormattingResponse>(CancellationToken.None);
 
             return result.Edits;
         }

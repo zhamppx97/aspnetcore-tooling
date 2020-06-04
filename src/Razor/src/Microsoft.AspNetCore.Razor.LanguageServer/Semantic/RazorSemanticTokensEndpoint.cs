@@ -63,7 +63,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Semantic
                 throw new ArgumentNullException(nameof(request));
             }
 
-            return await Handle(request.TextDocument.Uri.AbsolutePath, cancellationToken, range: null);
+            return await Handle(request.TextDocument.Uri.ToUri().AbsolutePath, cancellationToken, range: null);
         }
 
         public async Task<SemanticTokens> Handle(SemanticTokensRangeParams request, CancellationToken cancellationToken)
@@ -73,7 +73,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Semantic
                 throw new ArgumentNullException(nameof(request));
             }
 
-            return await Handle(request.TextDocument.Uri.AbsolutePath, cancellationToken, request.Range);
+            return await Handle(request.TextDocument.Uri.ToUri().AbsolutePath, cancellationToken, request.Range);
         }
 
         public async Task<SemanticTokensOrSemanticTokensEdits?> Handle(SemanticTokensEditParams request, CancellationToken cancellationToken)
@@ -83,7 +83,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Semantic
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var codeDocument = await TryGetCodeDocumentAsync(request.TextDocument.Uri.AbsolutePath, cancellationToken);
+            var codeDocument = await TryGetCodeDocumentAsync(request.TextDocument.Uri.ToUri().AbsolutePath, cancellationToken);
             if (codeDocument is null)
             {
                 return null;

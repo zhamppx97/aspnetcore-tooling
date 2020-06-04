@@ -4,6 +4,7 @@
 using System;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 
@@ -38,7 +39,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             var clientSettings = new InitializeParams()
             {
                 RootPath = "/somethingelse",
-                RootUri = new Uri(expectedWorkspaceDirectory),
+                RootUri = new OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri("file", authority: null, path: expectedWorkspaceDirectory, query: null, fragment: null),
             };
             var server = Mock.Of<ILanguageServer>(server => server.ClientSettings == clientSettings);
             var workspaceDirectoryPathResolver = new DefaultWorkspaceDirectoryPathResolver(server);

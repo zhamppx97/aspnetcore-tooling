@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer
 {
@@ -28,7 +28,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 return _languageServer.ClientSettings.RootPath;
             }
 
-            return _languageServer.ClientSettings.RootUri.LocalPath;
+            return _languageServer.ClientSettings.RootUri.ToUri().LocalPath;
         }
     }
 }
