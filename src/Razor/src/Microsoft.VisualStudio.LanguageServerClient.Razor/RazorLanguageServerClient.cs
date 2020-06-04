@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using Nerdbank.Streams;
+using OmniSharp.Extensions.LanguageServer.Server;
 using StreamJsonRpc;
 using Trace = Microsoft.AspNetCore.Razor.LanguageServer.Trace;
 
@@ -23,6 +24,7 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
     {
         private readonly RazorLanguageServerCustomMessageTarget _customMessageTarget;
         private readonly ILanguageClientMiddleLayer _middleLayer;
+        private ILanguageServer _server;
 
         [ImportingConstructor]
         public RazorLanguageServerClient(RazorLanguageServerCustomMessageTarget customTarget, RazorLanguageClientMiddleLayer middleLayer)
@@ -39,6 +41,8 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
 
             _customMessageTarget = customTarget;
             _middleLayer = middleLayer;
+            StartAsync += RazorLanguageServerClient_StartAsync;
+            StopAsync += RazorLanguageServerClient_StopAsync;
         }
 
         public string Name => "Razor Language Server Client";
@@ -54,11 +58,7 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
         public object CustomMessageTarget => _customMessageTarget;
 
         public event AsyncEventHandler<EventArgs> StartAsync;
-        public event AsyncEventHandler<EventArgs> StopAsync
-        {
-            add { }
-            remove { }
-        }
+        public event AsyncEventHandler<EventArgs> StopAsync;
 
         public async Task<Connection> ActivateAsync(CancellationToken token)
         {
@@ -67,10 +67,10 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
             // Need an auto-flushing stream for the server because O# doesn't currently flush after writing responses. Without this
             // performing the Initialize handshake with the LanguageServer hangs.
             var autoFlushingStream = new AutoFlushingNerdbankStream(serverStream);
-            var server = await RazorLanguageServer.CreateAsync(autoFlushingStream, autoFlushingStream, Trace.Verbose).ConfigureAwait(false);
+            _server = await RazorLanguageServer.CreateAsync(autoFlushingStream, autoFlushingStream, Trace.Verbose).ConfigureAwait(false);
 
             // Fire and forget for Initialized. Need to allow the LSP infrastructure to run in order to actually Initialize.
-            _ = server.InitializedAsync(token);
+            _ = _server.InitializedAsync(token);
             var connection = new Connection(clientStream, clientStream);
             return connection;
         }
@@ -91,5 +91,21 @@ namespace Microsoft.VisualStudio.LanguageServerClient.Razor
         }
 
         public Task AttachForCustomMessageAsync(JsonRpc rpc) => Task.CompletedTask;
+
+        private Task RazorLanguageServerClient_StopAsync(object sender, EventArgs args)
+        {
+            if (_server == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            _server.Dispose();
+            return _server.WaitForExit;
+        }
+
+        private Task RazorLanguageServerClient_StartAsync(object sender, EventArgs args)
+        {
+            return Task.CompletedTask;
+        }
     }
 }
