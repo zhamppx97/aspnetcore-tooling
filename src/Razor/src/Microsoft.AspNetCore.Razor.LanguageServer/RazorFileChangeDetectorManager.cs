@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer
 {
@@ -52,7 +52,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 return clientSettings.RootPath;
             }
 
-            return clientSettings.RootUri.LocalPath;
+            return clientSettings.RootUri.ToUri().LocalPath;
         }
     }
 }

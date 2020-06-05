@@ -11,8 +11,8 @@ using Microsoft.CodeAnalysis.Razor;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using HoverModel = OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer.Hover
@@ -57,9 +57,9 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Hover
             _logger = loggerFactory.CreateLogger<RazorHoverEndpoint>();
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions()
+        public HoverRegistrationOptions GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions()
+            return new HoverRegistrationOptions()
             {
                 DocumentSelector = RazorDefaults.Selector
             };
@@ -74,7 +74,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Hover
 
             var document = await Task.Factory.StartNew(() =>
             {
-                _documentResolver.TryResolveDocument(request.TextDocument.Uri.GetAbsoluteOrUNCPath(), out var documentSnapshot);
+                _documentResolver.TryResolveDocument(request.TextDocument.Uri.ToUri().GetAbsoluteOrUNCPath(), out var documentSnapshot);
 
                 return documentSnapshot;
             }, cancellationToken, TaskCreationOptions.None, _foregroundDispatcher.ForegroundScheduler);

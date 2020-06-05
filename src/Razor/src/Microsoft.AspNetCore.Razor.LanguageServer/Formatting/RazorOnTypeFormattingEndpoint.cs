@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.LanguageServer.Common;
 using Microsoft.AspNetCore.Razor.LanguageServer.ProjectSystem;
 using Microsoft.CodeAnalysis.Razor;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
 {
-    internal class RazorOnTypeFormattingEndpoint : IDocumentOnTypeFormatHandler
+    internal class RazorOnTypeFormattingEndpoint : IDocumentOnTypeFormattingHandler
     {
         private readonly ForegroundDispatcher _foregroundDispatcher;
         private readonly DocumentResolver _documentResolver;
@@ -81,7 +80,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
         {
             var document = await Task.Factory.StartNew(() =>
             {
-                _documentResolver.TryResolveDocument(request.TextDocument.Uri.GetAbsoluteOrUNCPath(), out var documentSnapshot);
+                _documentResolver.TryResolveDocument(request.TextDocument.Uri.ToUri().GetAbsoluteOrUNCPath(), out var documentSnapshot);
 
                 return documentSnapshot;
             }, cancellationToken, TaskCreationOptions.None, _foregroundDispatcher.ForegroundScheduler);
@@ -97,7 +96,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
                 return null;
             }
 
-            var edits = await _razorFormattingService.FormatOnTypeAsync(request.TextDocument.Uri, codeDocument, request.Position, request.Character, request.Options);
+            var edits = await _razorFormattingService.FormatOnTypeAsync(request.TextDocument.Uri.ToUri(), codeDocument, request.Position, request.Character, request.Options);
 
             var editContainer = new TextEditContainer(edits);
             return editContainer;
