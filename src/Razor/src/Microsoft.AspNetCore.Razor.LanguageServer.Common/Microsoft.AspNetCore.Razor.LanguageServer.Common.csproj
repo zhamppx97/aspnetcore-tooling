@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="$(MicrosoftAspNetCoreMvcRazorExtensionsPackageVersion)"/>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions.Version1_X" Version="$(MicrosoftAspNetCoreMvcRazorExtensionsVersion1_XPackageVersion)"/>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions.Version2_X" Version="$(MicrosoftAspNetCoreMvcRazorExtensionsVersion2_XPackageVersion)"/>
-    <PackageReference Include="OmniSharp.Extensions.LanguageProtocol" Version="$(OmniSharpExtensionsLanguageProtocolPackageVersion)" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageProtocol" Version="$(OmniSharpExtensionsLanguageProtocolPackageVersion)" /> 
   </ItemGroup>
 
   <ItemGroup>
