@@ -61,7 +61,6 @@ namespace Microsoft.VisualStudio.LanguageServices.Razor
                     TagHelperDescriptorJsonConverter.Instance,
                     RazorDiagnosticJsonConverter.Instance,
                 },
-                //NullValueHandling = NullValueHandling.Ignore,
             };
             var serializedDescriptor = JsonConvert.SerializeObject(expectedDescriptor, serializerSettings);
 
