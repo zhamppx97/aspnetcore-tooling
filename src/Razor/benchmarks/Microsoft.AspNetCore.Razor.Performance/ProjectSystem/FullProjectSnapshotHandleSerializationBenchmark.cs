@@ -40,8 +40,8 @@ namespace Microsoft.AspNetCore.Razor.Performance
             Serializer.Converters.Add(FullProjectSnapshotHandleJsonConverter.Instance);
         }
 
-        [Benchmark(Description = "Razor ProjectSnapshotHandle Roundtrip JsonConverter Serialization")]
-        public void TagHelper_JsonConvert_Serialization_RoundTrip()
+        [Benchmark(Description = "Razor ProjectSnapshotHandle Roundtrip Newtonsoft JsonConverter Serialization")]
+        public void TagHelper_JsonConvert_Newtonsoft_Serialization_RoundTrip()
         {
             var stream = new MemoryStream(FullProjectSnapshotBuffer);
             Reader = new JsonTextReader(new StreamReader(stream));
@@ -49,6 +49,23 @@ namespace Microsoft.AspNetCore.Razor.Performance
             Reader.Read();
 
             var res = FullProjectSnapshotHandleJsonConverter.Instance.ReadJson(Reader, typeof(FullProjectSnapshotHandle), null, Serializer) as FullProjectSnapshotHandle;
+
+            if (res.FilePath != ExpectedFilePath ||
+                res.ProjectWorkspaceState.TagHelpers.Count != ExpectedTagHelperCount)
+            {
+                throw new InvalidDataException();
+            }
+        }
+
+        [Benchmark(Description = "Razor ProjectSnapshotHandle Roundtrip System.Text.Json JsonConverter Serialization")]
+        public void TagHelper_JsonConvert_STJ_Serialization_RoundTrip()
+        {
+            // var stream = new MemoryStream();
+            var Reader = new System.Text.Json.Utf8JsonReader(FullProjectSnapshotBuffer); //  (new StreamReader(stream));
+
+            Reader.Read();
+
+            var res = FullProjectSnapshotHandleJsonConverter2.Instance.Read(ref Reader, typeof(FullProjectSnapshotHandle), default) as FullProjectSnapshotHandle;
 
             if (res.FilePath != ExpectedFilePath ||
                 res.ProjectWorkspaceState.TagHelpers.Count != ExpectedTagHelperCount)
