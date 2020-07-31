@@ -70,6 +70,16 @@ namespace Microsoft.CodeAnalysis.Razor.ProjectSystem
             }
         }
 
+        public IReadOnlyCollection<string> OpenDocuments
+        {
+            get
+            {
+                _foregroundDispatcher.AssertForegroundThread();
+
+                return _openDocuments;
+            }
+        }
+
         public override IReadOnlyList<ProjectSnapshot> Projects
         {
             get
