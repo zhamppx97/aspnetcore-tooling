@@ -3,7 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+import * as cp from 'child_process';
 import * as vscode from 'vscode';
+import * as url from 'url';
 
 import { RazorLogger } from '../RazorLogger';
 import { HOSTED_APP_NAME, JS_DEBUG_NAME } from './Constants';
@@ -102,7 +104,32 @@ export class BlazorDebugConfigurationProvider implements vscode.DebugConfigurati
         output.show(/*preserveFocus*/true);
     }
 
+    private getDebugProxyHost(text: string) {
+        const nowListeningRegex = new RegExp('Now listening on: (?<url>.*)', 'm');
+        const found = text.match(nowListeningRegex);
+        if (found && found.groups) {
+            const debugProxyUrl = url.parse(found.groups.url);
+            return `${debugProxyUrl.hostname}:${debugProxyUrl.port}`;
+        }
+    }
+
+    private async launchDebugProxy() {
+        const debugProxyPath = `/Users/captainsafia/.nuget/packages/microsoft.aspnetcore.components.webassembly.devserver/3.2.0/tools/BlazorDebugProxy/Microsoft.AspNetCore.Components.WebAssembly.DebugProxy.dll`;
+        return new Promise<string>((resolve, reject) => {
+            const debugProxy = cp.spawn('dotnet', [debugProxyPath], { detached: true });
+            debugProxy.stdout.on('data', data => {
+                console.log(data.toString());
+                const hostname = this.getDebugProxyHost(data.toString());
+                if (hostname) {
+                    resolve(hostname);
+                }
+            });
+        });
+
+    }
+
     private async launchBrowser(folder: vscode.WorkspaceFolder | undefined, configuration: vscode.DebugConfiguration) {
+        const debugProxyHost = await this.launchDebugProxy();
         const browser = {
             name: JS_DEBUG_NAME,
             type: configuration.browser === 'edge' ? 'pwa-msedge' : 'pwa-chrome',
@@ -110,7 +137,7 @@ export class BlazorDebugConfigurationProvider implements vscode.DebugConfigurati
             timeout: configuration.timeout || 30000,
             url: configuration.url || 'https://localhost:5001',
             webRoot: configuration.webRoot || '${workspaceFolder}',
-            inspectUri: '{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}',
+            inspectUri: `ws://${debugProxyHost}/ws-proxy?browser={browserInspectUri}`,
             trace: configuration.trace || false,
             noDebug: configuration.noDebug || false,
         };
