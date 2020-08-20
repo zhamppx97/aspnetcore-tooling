@@ -77,6 +77,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 options
                     .WithInput(input)
                     .WithOutput(output)
+                    .WithContentModifiedSupport(false)
+                    .WithSerializer(Serializer.Instance)
                     .ConfigureLogging(builder => builder
                         .SetMinimumLevel(RazorLSPOptions.GetLogLevelForTrace(trace))
                         .AddLanguageProtocolLogging(logLevel))
