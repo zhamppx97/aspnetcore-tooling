@@ -365,6 +365,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 
             public IClientLanguageServer Client { get; }
 
+            public ILanguageServerWorkspaceFolderManager WorkspaceFolderManager => throw new NotImplementedException();
+
             IWindowLanguageServer ILanguageServer.Window => throw new NotImplementedException();
 
             IWorkspaceLanguageServer ILanguageServer.Workspace => throw new NotImplementedException();
