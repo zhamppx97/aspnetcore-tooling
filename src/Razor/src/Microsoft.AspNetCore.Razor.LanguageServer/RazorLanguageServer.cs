@@ -58,7 +58,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 
         public static Task<RazorLanguageServer> CreateAsync(Stream input, Stream output, Trace trace)
         {
-            Serializer.Instance.Settings.Converters.Add(SemanticTokensOrSemanticTokensEditsConverter.Instance);
+            // Serializer.Instance.Settings.Converters.Add(SemanticTokensOrSemanticTokensEditsConverter.Instance);
             Serializer.Instance.JsonSerializer.Converters.RegisterRazorConverters();
 
             // Custom ClientCapabilities deserializer to extract experimental capabilities
@@ -111,7 +111,6 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                     .WithHandler<RazorConfigurationEndpoint>()
                     .WithHandler<RazorFormattingEndpoint>()
                     .WithHandler<RazorSemanticTokensEndpoint>()
-                    .WithHandler<RazorSemanticTokensLegendEndpoint>()
                     .WithHandler<OnAutoInsertEndpoint>()
                     .WithHandler<CodeActionEndpoint>()
                     .WithHandler<CodeActionResolutionEndpoint>()

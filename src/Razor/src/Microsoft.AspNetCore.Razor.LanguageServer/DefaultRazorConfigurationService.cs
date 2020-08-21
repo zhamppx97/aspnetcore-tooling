@@ -15,10 +15,11 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 {
     internal class DefaultRazorConfigurationService : RazorConfigurationService
     {
-        private readonly ILanguageServer _server;
+        private readonly IClientLanguageServer _server;
         private readonly ILogger _logger;
 
-        public DefaultRazorConfigurationService(ILanguageServer languageServer, ILoggerFactory loggerFactory)
+        // ILanguageServerClient instead of ILanguageServer
+        public DefaultRazorConfigurationService(IClientLanguageServer languageServer, ILoggerFactory loggerFactory)
         {
             if (languageServer is null)
             {
@@ -53,7 +54,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                     }
                 };
 
-                var response = _server.Client.SendRequest<ConfigurationParams>("workspace/configuration", request);
+                var response = _server.SendRequest<ConfigurationParams>("workspace/configuration", request);
                 var result = await response.Returning<object[]>(CancellationToken.None);
                 if (result == null || result.Length < 2 || result[0] == null)
                 {

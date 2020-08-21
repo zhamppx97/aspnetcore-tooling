@@ -72,18 +72,17 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             Assert.Null(options);
         }
 
-        private ILanguageServer GetLanguageServer(IResponseRouterReturns result, bool shouldThrow = false)
+        private IClientLanguageServer GetLanguageServer(IResponseRouterReturns result, bool shouldThrow = false)
         {
-            var languageServer = new Mock<ILanguageServer>(MockBehavior.Strict);
+            var languageServer = new Mock<IClientLanguageServer>(MockBehavior.Strict);
 
             if (shouldThrow)
             {
-                languageServer.Setup(l => l.Client).Throws(new Exception());
             }
             else
             {
                 languageServer
-                    .Setup(l => l.Client.SendRequest("workspace/configuration", It.IsAny<ConfigurationParams>()))
+                    .Setup(l => l.SendRequest("workspace/configuration", It.IsAny<ConfigurationParams>()))
                     .Returns(result);
             }
             return languageServer.Object;

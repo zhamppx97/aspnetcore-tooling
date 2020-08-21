@@ -27,14 +27,14 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 
         private static readonly TimeSpan CheckForDocumentClosedDelay = TimeSpan.FromSeconds(5);
         private readonly ForegroundDispatcher _foregroundDispatcher;
-        private readonly ILanguageServer _languageServer;
+        private readonly ITextDocumentLanguageServer _languageServer;
         private readonly Dictionary<string, DocumentSnapshot> _work;
         private readonly ILogger<RazorDiagnosticsPublisher> _logger;
         private ProjectSnapshotManager _projectManager;
 
         public RazorDiagnosticsPublisher(
             ForegroundDispatcher foregroundDispatcher,
-            ILanguageServer languageServer,
+            ITextDocumentLanguageServer languageServer,
             ILoggerFactory loggerFactory)
         {
             if (foregroundDispatcher == null)

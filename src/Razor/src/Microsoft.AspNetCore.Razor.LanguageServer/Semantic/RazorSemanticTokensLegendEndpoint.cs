@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Razor.LanguageServer.Semantic.Models;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer.Semantic
 {
-    internal class RazorSemanticTokensLegendEndpoint : ISemanticTokensLegendHandler
-    {
-        public Task<SemanticTokensLegend> Handle(SemanticTokensLegendParams request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(SemanticTokensLegend.Instance);
-        }
-    }
+    //internal class RazorSemanticTokensLegendEndpoint : ISemanticTokensLegendHandler
+    //{
+    //    public Task<SemanticTokensLegend> Handle(SemanticTokensLegendParams request, CancellationToken cancellationToken)
+    //    {
+    //        return Task.FromResult(RazorSemanticTokensLegend.Instance);
+    //    }
+    //}
 }

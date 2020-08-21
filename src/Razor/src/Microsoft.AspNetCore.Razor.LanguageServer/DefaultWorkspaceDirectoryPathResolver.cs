@@ -8,9 +8,9 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
 {
     internal class DefaultWorkspaceDirectoryPathResolver : WorkspaceDirectoryPathResolver
     {
-        private readonly ILanguageServer _languageServer;
+        private readonly IClientLanguageServer _languageServer;
 
-        public DefaultWorkspaceDirectoryPathResolver(ILanguageServer languageServer)
+        public DefaultWorkspaceDirectoryPathResolver(IClientLanguageServer languageServer)
         {
             if (languageServer is null)
             {

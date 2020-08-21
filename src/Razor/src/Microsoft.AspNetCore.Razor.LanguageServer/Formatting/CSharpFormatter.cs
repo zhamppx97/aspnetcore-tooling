@@ -18,11 +18,11 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
     {
         private readonly RazorDocumentMappingService _documentMappingService;
         private readonly FilePathNormalizer _filePathNormalizer;
-        private readonly ILanguageServer _server;
+        private readonly IClientLanguageServer _server;
 
         public CSharpFormatter(
             RazorDocumentMappingService documentMappingService,
-            ILanguageServer languageServer,
+            IClientLanguageServer languageServer,
             FilePathNormalizer filePathNormalizer)
         {
             if (documentMappingService is null)
@@ -64,7 +64,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
                 Options = options
             };
 
-            var response = _server.Client.SendRequest(LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
+            var response = _server.SendRequest(LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
             var result = await response.Returning<RazorDocumentRangeFormattingResponse>(CancellationToken.None);
 
             var mappedEdits = MapEditsToHostDocument(codeDocument, result.Edits);

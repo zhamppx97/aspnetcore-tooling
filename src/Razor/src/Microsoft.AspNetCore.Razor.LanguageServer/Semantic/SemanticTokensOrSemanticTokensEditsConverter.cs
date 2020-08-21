@@ -5,42 +5,43 @@ using System;
 using Microsoft.AspNetCore.Razor.LanguageServer.Semantic.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer.Semantic
 {
-    internal class SemanticTokensOrSemanticTokensEditsConverter : JsonConverter<SemanticTokensOrSemanticTokensEdits>
-    {
-        public static readonly SemanticTokensOrSemanticTokensEditsConverter Instance = new SemanticTokensOrSemanticTokensEditsConverter();
+    //internal class SemanticTokensOrSemanticTokensEditsConverter : JsonConverter<SemanticTokensOrSemanticTokensEdits>
+    //{
+    //    public static readonly SemanticTokensOrSemanticTokensEditsConverter Instance = new SemanticTokensOrSemanticTokensEditsConverter();
 
-        public override void WriteJson(JsonWriter writer, SemanticTokensOrSemanticTokensEdits edits, JsonSerializer serializer)
-        {
-            if (edits.IsSemanticTokens)
-            {
-                serializer.Serialize(writer, edits.SemanticTokens);
-            }
-            else if (edits.IsSemanticTokensEdits)
-            {
-                serializer.Serialize(writer, edits.SemanticTokensEdits);
-            }
-            else
-            {
-                writer.WriteNull();
-            }
-        }
+    //    public override void WriteJson(JsonWriter writer, SemanticTokensOrSemanticTokensEdits edits, JsonSerializer serializer)
+    //    {
+    //        if (edits.IsSemanticTokens)
+    //        {
+    //            serializer.Serialize(writer, edits.SemanticTokens);
+    //        }
+    //        else if (edits.IsSemanticTokensEdits)
+    //        {
+    //            serializer.Serialize(writer, edits.SemanticTokensEdits);
+    //        }
+    //        else
+    //        {
+    //            writer.WriteNull();
+    //        }
+    //    }
 
-        public override SemanticTokensOrSemanticTokensEdits ReadJson(JsonReader reader, Type objectType, SemanticTokensOrSemanticTokensEdits existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            var obj = JObject.Load(reader);
-            if (obj["data"] is null)
-            {
-                return new SemanticTokensOrSemanticTokensEdits(obj.ToObject<SemanticTokensEditCollection>());
-            }
-            else
-            {
-                return new SemanticTokensOrSemanticTokensEdits(obj.ToObject<SemanticTokens>());
-            }
-        }
+    //    public override SemanticTokensOrSemanticTokensEdits ReadJson(JsonReader reader, Type objectType, SemanticTokensOrSemanticTokensEdits existingValue, bool hasExistingValue, JsonSerializer serializer)
+    //    {
+    //        var obj = JObject.Load(reader);
+    //        if (obj["data"] is null)
+    //        {
+    //            return new SemanticTokensOrSemanticTokensEdits(obj.ToObject<SemanticTokensEditCollection>());
+    //        }
+    //        else
+    //        {
+    //            return new SemanticTokensOrSemanticTokensEdits(obj.ToObject<SemanticTokens>());
+    //        }
+    //    }
 
-        public override bool CanRead => true;
-    }
+    //    public override bool CanRead => true;
+    //}
 }

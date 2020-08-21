@@ -1,11 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 
 namespace Microsoft.AspNetCore.Razor.LanguageServer
@@ -21,7 +19,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             {
                 RootPath = expectedWorkspaceDirectory
             };
-            var server = Mock.Of<ILanguageServer>(server => server.ClientSettings == clientSettings);
+            var server = Mock.Of<IClientLanguageServer>(server => server.ClientSettings == clientSettings);
             var workspaceDirectoryPathResolver = new DefaultWorkspaceDirectoryPathResolver(server);
 
             // Act
@@ -41,7 +39,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                 RootPath = "/somethingelse",
                 RootUri = new OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri("file", authority: null, path: expectedWorkspaceDirectory, query: null, fragment: null),
             };
-            var server = Mock.Of<ILanguageServer>(server => server.ClientSettings == clientSettings);
+            var server = Mock.Of<IClientLanguageServer>(server => server.ClientSettings == clientSettings);
             var workspaceDirectoryPathResolver = new DefaultWorkspaceDirectoryPathResolver(server);
 
             // Act

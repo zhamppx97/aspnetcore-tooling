@@ -17,10 +17,10 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
     internal class HtmlFormatter
     {
         private readonly FilePathNormalizer _filePathNormalizer;
-        private readonly ILanguageServer _server;
+        private readonly IClientLanguageServer _server;
 
         public HtmlFormatter(
-            ILanguageServer languageServer,
+            IClientLanguageServer languageServer,
             FilePathNormalizer filePathNormalizer)
         {
             if (languageServer is null)
@@ -51,7 +51,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Formatting
                 Options = options
             };
 
-            var response = _server.Client.SendRequest<RazorDocumentRangeFormattingParams>(LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
+            var response = _server.SendRequest<RazorDocumentRangeFormattingParams>(LanguageServerConstants.RazorRangeFormattingEndpoint, @params);
             var result = await response.Returning<RazorDocumentRangeFormattingResponse>(CancellationToken.None);
 
             return result.Edits;

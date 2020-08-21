@@ -22,7 +22,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             {
                 RootUri = new DocumentUri("file", authority: null, path: expectedWorkspaceDirectory, query: null, fragment: null),
             };
-            var languageServer = new Mock<ILanguageServer>(MockBehavior.Strict);
+            var languageServer = new Mock<IClientLanguageServer>(MockBehavior.Strict);
             languageServer.SetupGet(s => s.ClientSettings)
                 .Returns(clientSettings);
             var detector1 = new Mock<IFileChangeDetector>(MockBehavior.Strict);
@@ -54,7 +54,7 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
             {
                 RootUri = new DocumentUri("file", authority: null, path: expectedWorkspaceDirectory, query: null, fragment: null),
             };
-            var languageServer = new Mock<ILanguageServer>(MockBehavior.Strict);
+            var languageServer = new Mock<IClientLanguageServer>(MockBehavior.Strict);
             languageServer
                 .SetupGet(s => s.ClientSettings)
                 .Returns(clientSettings);

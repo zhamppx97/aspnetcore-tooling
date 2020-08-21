@@ -318,7 +318,8 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Test.Hover
                 languageServer = LanguageServer;
             }
 
-            var tagHelperDescriptionFactory = new DefaultTagHelperDescriptionFactory(languageServer);
+            var lazy = new Lazy<ILanguageServer>(languageServer);
+            var tagHelperDescriptionFactory = new DefaultTagHelperDescriptionFactory(lazy);
             return new DefaultRazorHoverInfoService(TagHelperFactsService, tagHelperDescriptionFactory, HtmlFactsService);
         }
     }
