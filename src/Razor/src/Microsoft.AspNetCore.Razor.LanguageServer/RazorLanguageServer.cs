@@ -111,12 +111,18 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer
                     .WithHandler<RazorConfigurationEndpoint>()
                     .WithHandler<RazorFormattingEndpoint>()
                     .WithHandler<RazorSemanticTokensEndpoint>()
+                    .AddHandlerLink(LanguageServerConstants.LegacyRazorSemanticTokensEditEndpoint, "textDocument/semanticTokens/full/edit")
+                    .AddHandlerLink(LanguageServerConstants.LegacyRazorSemanticTokensEndpoint, "textDocument/semanticTokens/full")
+                    .AddHandlerLink(LanguageServerConstants.LegacyRazorSemanticTokensRangeEndpoint, "textDocument/semanticTokens/range")
+                    //.WithHandler<LegacyRazorSemanticTokensEndpoint>()
                     .WithHandler<OnAutoInsertEndpoint>()
                     .WithHandler<CodeActionEndpoint>()
                     .WithHandler<CodeActionResolutionEndpoint>()
                     .WithHandler<MonitorProjectConfigurationFilePathEndpoint>()
                     .WithHandler<RazorComponentRenameEndpoint>()
                     .WithHandler<RazorDefinitionEndpoint>()
+                    //.AddHandlerLink("textDocument/semanticTokens", "textDocument/semanticTokens/full")
+                    //.AddHandlerLink("textDocument/semanticTokens/edits", "textDocument/semanticTokens/full/delta")
                     .WithServices(services =>
                     {
                         var filePathNormalizer = new FilePathNormalizer();

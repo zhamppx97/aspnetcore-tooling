@@ -7,6 +7,12 @@ namespace Microsoft.AspNetCore.Razor.LanguageServer.Common
     {
         public const string ProjectConfigurationFile = "project.razor.json";
 
+        public const string LegacyRazorSemanticTokensEndpoint = "textDocument/semanticTokens";
+
+        public const string LegacyRazorSemanticTokensEditEndpoint = "textDocument/semanticTokens/edits";
+
+        public const string LegacyRazorSemanticTokensRangeEndpoint = "textDocument/semanticTokens/range";
+
         public const string RazorSemanticTokensLegendEndpoint = "_ms_/textDocument/semanticTokensLegend";
 
         public const string RazorRangeFormattingEndpoint = "razor/rangeFormatting";
