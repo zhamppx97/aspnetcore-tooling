@@ -13,6 +13,6 @@
 
 [$RootKey$\FeatureFlags\Razor\LSP\Editor]
 "Description"="Enables the Razor Language Server Protocol powered editor experience for all Razor editors."
-"Value"=dword:00000000
+"Value"=dword:00000001
 "Title"="Enable experimental Razor editor (requires restart)"
 "PreviewPaneChannels"="*"
