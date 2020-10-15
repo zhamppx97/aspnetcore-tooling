@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
 
 import * as vscode from 'vscode';
 import { RequestType } from 'vscode-languageclient';
@@ -17,16 +17,16 @@ export class SemanticTokensHandler {
     constructor(private readonly serverClient: RazorLanguageServerClient) {
     }
 
-    public register() {
+    public register(): void {
         // tslint:disable-next-line: no-floating-promises
         this.serverClient.onRequestWithParams<SerializableSemanticTokensParams, SemanticTokensResponse, any, any>(
             this.semanticTokensRequestType,
-            async (request, token) => this.getSemanticTokens(request, token));
+            (request, token) => this.getSemanticTokens(request, token));
     }
 
-    private async getSemanticTokens(
-        semanticTokensParams: SerializableSemanticTokensParams,
-        cancellationToken: vscode.CancellationToken) {
+    private getSemanticTokens(
+        _semanticTokensParams: SerializableSemanticTokensParams,
+        _cancellationToken: vscode.CancellationToken): SemanticTokens {
 
         // This is currently a No-Op because we don't have a way to get the semantic tokens from CSharp.
         // Other functions accomplish this with `vscode.execute<Blank>Provider`, but that doesn't exiset for Semantic Tokens yet because it's still not an official part of the spec.
