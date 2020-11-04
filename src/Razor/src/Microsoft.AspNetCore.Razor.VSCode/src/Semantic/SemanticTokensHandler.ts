@@ -26,7 +26,7 @@ export class SemanticTokensHandler {
 
     private getSemanticTokens(
         _semanticTokensParams: SerializableSemanticTokensParams,
-        _cancellationToken: vscode.CancellationToken): SemanticTokens {
+        _cancellationToken: vscode.CancellationToken): SemanticTokensResponse {
 
         // This is currently a No-Op because we don't have a way to get the semantic tokens from CSharp.
         // Other functions accomplish this with `vscode.execute<Blank>Provider`, but that doesn't exiset for Semantic Tokens yet because it's still not an official part of the spec.
